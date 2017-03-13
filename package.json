@@ -1,12 +1,12 @@
 {
   "name": "prettier",
-  "version": "1.1.0",
-  "description": "Prettier is an opinionated JavaScript formatter",
+  "version": "1.1.7",
+  "description": "A fork of prettier to conform with wp-calypso styleguide",
   "bin": {
     "prettier": "./bin/prettier.js"
   },
-  "repository": "prettier/prettier",
-  "author": "James Long",
+  "repository": "https://github.com/samouri/prettier",
+  "author": "Samouri",
   "license": "MIT",
   "main": "./index.js",
   "dependencies": {
