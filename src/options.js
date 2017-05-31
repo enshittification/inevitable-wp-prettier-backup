@@ -23,6 +23,7 @@ var exampleConfig = Object.assign({}, defaults, {
 
 // Copy options and fill in default values.
 function normalize(options) {
+  /*
   const normalized = Object.assign({}, options || {});
 
   if (typeof normalized.trailingComma === "boolean") {
@@ -51,6 +52,10 @@ function normalize(options) {
   });
 
   return normalized;
+  */
+
+ // we have strong opinions on calypso
+ return Object.assign( {}, defaults );
 }
 
 module.exports = { normalize };
