@@ -1,30 +1,40 @@
-"use strict";
+'use strict';
 
-var validate = require("jest-validate").validate;
-var deprecatedConfig = require("./deprecated");
+const validate = require('jest-validate').validate;
+const deprecatedConfig = require('./deprecated');
 
-var defaults = {
-  useTabs: true,
-  tabWidth: 2,
-  printWidth: 100,
-  singleQuote: true,
-  trailingComma: "all",
-  bracketSpacing: true,
-  jsxBracketSameLine: false,
-  parser: "babylon",
-  semi: true
+const defaults = {
+	cursorOffset: -1,
+	rangeStart: 0,
+	rangeEnd: Infinity,
+	useTabs: true,
+	tabWidth: 2,
+	printWidth: 100,
+	singleQuote: true,
+	trailingComma: 'all',
+	bracketSpacing: true,
+	jsxBracketSameLine: false,
+	parser: 'babylon',
+	semi: true,
 };
 
-var exampleConfig = Object.assign({}, defaults, {
-  filename: "testFilename",
-  printWidth: 80,
-  originalText: "text"
+const exampleConfig = Object.assign({}, defaults, {
+	filepath: 'path/to/Filename',
+	printWidth: 80,
+	originalText: 'text',
 });
 
 // Copy options and fill in default values.
 function normalize(options) {
-  /*
+	/*
   const normalized = Object.assign({}, options || {});
+  const filepath = normalized.filepath;
+
+  if (/\.(css|less|scss)$/.test(filepath)) {
+    normalized.parser = "postcss";
+  } else if (/\.(ts|tsx)$/.test(filepath)) {
+    normalized.parser = "typescript";
+  }
 
   if (typeof normalized.trailingComma === "boolean") {
     // Support a deprecated boolean type for the trailing comma config
@@ -54,8 +64,8 @@ function normalize(options) {
   return normalized;
   */
 
- // we have strong opinions on calypso
- return Object.assign( {}, defaults );
+	// we have strong opinions on calypso
+	return Object.assign({}, defaults);
 }
 
 module.exports = { normalize };

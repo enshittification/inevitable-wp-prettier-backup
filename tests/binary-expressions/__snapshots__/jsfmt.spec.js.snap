@@ -55,6 +55,38 @@ a ** (b * c);
 
 `;
 
+exports[`if.js 1`] = `
+if (this.hasPlugin("dynamicImports") && this.lookahead().type) {}
+
+if (this.hasPlugin("dynamicImports") && this.lookahead().type === tt.parenLeft) {}
+
+if (this.hasPlugin("dynamicImports") && this.lookahead().type === tt.parenLeft.right) {}
+
+if (VeryVeryVeryVeryVeryVeryVeryVeryLong === VeryVeryVeryVeryVeryVeryVeryVeryLong) {
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if (this.hasPlugin("dynamicImports") && this.lookahead().type) {
+}
+
+if (
+  this.hasPlugin("dynamicImports") &&
+  this.lookahead().type === tt.parenLeft
+) {
+}
+
+if (
+  this.hasPlugin("dynamicImports") &&
+  this.lookahead().type === tt.parenLeft.right
+) {
+}
+
+if (
+  VeryVeryVeryVeryVeryVeryVeryVeryLong === VeryVeryVeryVeryVeryVeryVeryVeryLong
+) {
+}
+
+`;
+
 exports[`inline-object-array.js 1`] = `
 prevState = prevState || {
   catalogs: [],
@@ -85,6 +117,37 @@ this.steps = steps || [
     path: "/nux/mock-module"
   }
 ];
+
+`;
+
+exports[`jsx_parent.js 1`] = `
+<div
+  src={
+    !isJellyfishEnabled &&
+    diffUpdateMessageInput != null &&
+    this.state.isUpdateMessageEmpty
+  }
+/>;
+
+<div>
+  {!isJellyfishEnabled &&
+    diffUpdateMessageInput != null &&
+    this.state.isUpdateMessageEmpty}
+</div>;
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<div
+  src={
+    !isJellyfishEnabled &&
+    diffUpdateMessageInput != null &&
+    this.state.isUpdateMessageEmpty
+  }
+/>;
+
+<div>
+  {!isJellyfishEnabled &&
+    diffUpdateMessageInput != null &&
+    this.state.isUpdateMessageEmpty}
+</div>;
 
 `;
 
@@ -139,6 +202,9 @@ const x = longVariable + longVariable * longVariable * longVariable / longVariab
 
 const x = longVariable && longVariable && longVariable && longVariable && longVariable && longVariable;
 const x = longVariable && longVariable || longVariable && longVariable || longVariable && longVariable;
+const x = firstItemWithAVeryLongNameThatKeepsGoing || firstItemWithAVeryLongNameThatKeepsGoing || {};
+const x = firstItemWithAVeryLongNameThatKeepsGoing || firstItemWithAVeryLongNameThatKeepsGoing || [];
+const x = call(firstItemWithAVeryLongNameThatKeepsGoing, firstItemWithAVeryLongNameThatKeepsGoing) || [];
 
 const x = longVariable * longint && longVariable >> 0 && longVariable + longVariable;
 
@@ -179,6 +245,19 @@ const x =
   (longVariable && longVariable) ||
   (longVariable && longVariable) ||
   (longVariable && longVariable);
+const x =
+  firstItemWithAVeryLongNameThatKeepsGoing ||
+  firstItemWithAVeryLongNameThatKeepsGoing ||
+  {};
+const x =
+  firstItemWithAVeryLongNameThatKeepsGoing ||
+  firstItemWithAVeryLongNameThatKeepsGoing ||
+  [];
+const x =
+  call(
+    firstItemWithAVeryLongNameThatKeepsGoing,
+    firstItemWithAVeryLongNameThatKeepsGoing
+  ) || [];
 
 const x =
   longVariable * longint && longVariable >> 0 && longVariable + longVariable;
@@ -190,6 +269,19 @@ foo(
   obj.property * new Class() && obj instanceof Class && longVariable
     ? number + 5
     : false
+);
+
+`;
+
+exports[`unary.js 1`] = `
+const anyTestFailures = !(
+  aggregatedResults.numFailedTests === 0 &&
+  aggregatedResults.numRuntimeErrorTestSuites === 0
+);
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const anyTestFailures = !(
+  aggregatedResults.numFailedTests === 0 &&
+  aggregatedResults.numRuntimeErrorTestSuites === 0
 );
 
 `;

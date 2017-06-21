@@ -39,6 +39,37 @@ export default function searchUsers(action$) {
 
 `;
 
+exports[`break.js 1`] = `
+export default class AddAssetHtmlPlugin {
+  apply(compiler: WebpackCompilerType) {
+    compiler.plugin('compilation', (compilation: WebpackCompilationType) => {
+      compilation.plugin('html-webpack-plugin-before-html', (callback: Callback<any>) => {
+        addAllAssetsToCompilation(this.assets, compilation, htmlPluginData, callback);
+      });
+    });
+  }
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+export default class AddAssetHtmlPlugin {
+  apply(compiler: WebpackCompilerType) {
+    compiler.plugin("compilation", (compilation: WebpackCompilationType) => {
+      compilation.plugin(
+        "html-webpack-plugin-before-html",
+        (callback: Callback<any>) => {
+          addAllAssetsToCompilation(
+            this.assets,
+            compilation,
+            htmlPluginData,
+            callback
+          );
+        }
+      );
+    });
+  }
+}
+
+`;
+
 exports[`break-parent.js 1`] = `
 ({
   processors: [
@@ -73,7 +104,7 @@ true
     }),
     require("postcss-url")({
       url: url =>
-        (url.startsWith("/") || /^[a-z]+:/.test(url) ? url : \`/static/\${url}\`)
+        url.startsWith("/") || /^[a-z]+:/.test(url) ? url : \`/static/\${url}\`
     })
   ]
 });
@@ -251,11 +282,11 @@ const els = items.map(item => (
   </div>
 ));
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-const els = items.map(item => (
+const els = items.map(item =>
   <div className="whatever">
     <span>{children}</span>
   </div>
-));
+);
 
 `;
 
