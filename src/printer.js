@@ -115,6 +115,8 @@ function hasJsxIgnoreComment(path) {
 }
 
 function genericPrint(path, options, printPath, args) {
+  const parenSpace = options.parenSpacing ? " " : "";
+
   assert.ok(path instanceof FastPath);
 
   const node = path.getValue();
@@ -222,13 +224,13 @@ function genericPrint(path, options, printPath, args) {
 
   const parts = [];
   if (needsParens) {
-    parts.unshift("(");
+    parts.unshift("(", parenSpace);
   }
 
   parts.push(linesWithoutParens);
 
   if (needsParens) {
-    parts.push(")");
+    parts.push(parenSpace, ")");
   }
 
   if (decorators.length > 0) {
@@ -240,6 +242,8 @@ function genericPrint(path, options, printPath, args) {
 function genericPrintNoParens(path, options, print, args) {
   const n = path.getValue();
   const semi = options.semi ? ";" : "";
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
 
   if (!n) {
     return "";
@@ -292,7 +296,13 @@ function genericPrintNoParens(path, options, print, args) {
       }
       return concat([path.call(print, "expression"), semi]); // Babel extension.
     case "ParenthesizedExpression":
-      return concat(["(", path.call(print, "expression"), ")"]);
+      return concat([
+        "(",
+        parenSpace,
+        path.call(print, "expression"),
+        parenSpace,
+        ")"
+      ]);
     case "AssignmentExpression":
       return printAssignment(
         n.left,
@@ -545,9 +555,12 @@ function genericPrintNoParens(path, options, print, args) {
       }
 
       // if the arrow function is expanded as last argument, we are adding a
-      // level of indentation and need to add a softline to align the closing )
+      // level of indentation and need to add a (soft) line to align the closing )
       // with the opening (.
-      const shouldAddSoftLine = args && args.expandLastArg;
+      // This means that the (soft) line is sometimes added, sometimes not. Add this fact as
+      // an `addedLine`opt to the returned `group`. It will be used by code that takes care
+      // of adding a space before the closing paren when the `paren-spacing` option is on.
+      const shouldAddLine = args && args.expandLastArg;
 
       // In order to avoid confusion between
       // a => a ? a : a
@@ -567,20 +580,21 @@ function genericPrintNoParens(path, options, print, args) {
               indent(
                 concat([
                   line,
-                  shouldAddParens ? ifBreak("", "(") : "",
+                  shouldAddParens ? ifBreak("", concat(["(", parenSpace])) : "",
                   body,
-                  shouldAddParens ? ifBreak("", ")") : ""
+                  shouldAddParens ? ifBreak("", concat([parenSpace, ")"])) : ""
                 ])
               ),
-              shouldAddSoftLine
+              shouldAddLine
                 ? concat([
                     ifBreak(shouldPrintComma(options, "all") ? "," : ""),
-                    softline
+                    parenLine
                   ])
                 : ""
             ])
           )
-        ])
+        ]),
+        { addedLine: shouldAddLine }
       );
     }
     case "MethodDefinition":
@@ -880,7 +894,13 @@ function genericPrintNoParens(path, options, print, args) {
           path.call(print, "callee"),
           optional,
           path.call(print, "typeParameters"),
-          concat(["(", join(", ", path.map(print, "arguments")), ")"])
+          concat([
+            "(",
+            parenSpace,
+            join(", ", path.map(print, "arguments")),
+            parenSpace,
+            ")"
+          ])
         ]);
       }
 
@@ -1073,7 +1093,13 @@ function genericPrintNoParens(path, options, print, args) {
       } else {
         let printedLeft;
         if (n.computed) {
-          printedLeft = concat(["[", path.call(print, "key"), "]"]);
+          printedLeft = concat([
+            "[",
+            parenSpace,
+            path.call(print, "key"),
+            parenSpace,
+            "]"
+          ]);
         } else {
           printedLeft = printPropertyKey(path, options, print);
         }
@@ -1144,7 +1170,7 @@ function genericPrintNoParens(path, options, print, args) {
               "[",
               indent(
                 concat([
-                  softline,
+                  parenLine,
                   printArrayItems(path, options, "elements", print)
                 ])
               ),
@@ -1161,7 +1187,7 @@ function genericPrintNoParens(path, options, print, args) {
                 options,
                 /* sameIndent */ true
               ),
-              softline,
+              parenLine,
               "]"
             ])
           )
@@ -1239,7 +1265,16 @@ function genericPrintNoParens(path, options, print, args) {
     case "UnaryExpression":
       parts.push(n.operator);
 
-      if (/[a-z]$/.test(n.operator)) {
+      if (
+        /[a-z]$/.test(n.operator) ||
+        (options.parenSpacing &&
+          n.operator === "!" &&
+          !(
+            n.argument &&
+            n.argument.type === "UnaryExpression" &&
+            n.argument.operator === "!"
+          ))
+      ) {
         parts.push(" ");
       }
 
@@ -1317,9 +1352,13 @@ function genericPrintNoParens(path, options, print, args) {
         parts.push(
           line,
           "? ",
-          n.consequent.type === "ConditionalExpression" ? ifBreak("", "(") : "",
+          n.consequent.type === "ConditionalExpression"
+            ? ifBreak("", concat(["(", parenSpace]))
+            : "",
           align(2, path.call(print, "consequent")),
-          n.consequent.type === "ConditionalExpression" ? ifBreak("", ")") : "",
+          n.consequent.type === "ConditionalExpression"
+            ? ifBreak("", concat([parenSpace, ")"]))
+            : "",
           line,
           ": ",
           align(2, path.call(print, "alternate"))
@@ -1409,7 +1448,9 @@ function genericPrintNoParens(path, options, print, args) {
       return group(
         concat([
           "with (",
+          parenSpace,
           path.call(print, "object"),
+          parenSpace,
           ")",
           adjustClause(n.body, path.call(print, "body"))
         ])
@@ -1421,8 +1462,8 @@ function genericPrintNoParens(path, options, print, args) {
           "if (",
           group(
             concat([
-              indent(concat([softline, path.call(print, "test")])),
-              softline
+              indent(concat([parenLine, path.call(print, "test")])),
+              parenLine
             ])
           ),
           ")",
@@ -1478,7 +1519,7 @@ function genericPrintNoParens(path, options, print, args) {
               concat([
                 indent(
                   concat([
-                    softline,
+                    parenLine,
                     path.call(print, "init"),
                     ";",
                     line,
@@ -1488,7 +1529,7 @@ function genericPrintNoParens(path, options, print, args) {
                     path.call(print, "update")
                   ])
                 ),
-                softline
+                parenLine
               ])
             ),
             ")",
@@ -1503,8 +1544,8 @@ function genericPrintNoParens(path, options, print, args) {
           "while (",
           group(
             concat([
-              indent(concat([softline, path.call(print, "test")])),
-              softline
+              indent(concat([parenLine, path.call(print, "test")])),
+              parenLine
             ])
           ),
           ")",
@@ -1516,9 +1557,11 @@ function genericPrintNoParens(path, options, print, args) {
       return group(
         concat([
           n.each ? "for each (" : "for (",
+          parenSpace,
           path.call(print, "left"),
           " in ",
           path.call(print, "right"),
+          parenSpace,
           ")",
           adjustClause(n.body, path.call(print, "body"))
         ])
@@ -1536,9 +1579,11 @@ function genericPrintNoParens(path, options, print, args) {
           "for",
           isAwait ? " await" : "",
           " (",
+          parenSpace,
           path.call(print, "left"),
           " of ",
           path.call(print, "right"),
+          parenSpace,
           ")",
           adjustClause(n.body, path.call(print, "body"))
         ])
@@ -1560,8 +1605,8 @@ function genericPrintNoParens(path, options, print, args) {
       parts.push(
         group(
           concat([
-            indent(concat([softline, path.call(print, "test")])),
-            softline
+            indent(concat([parenLine, path.call(print, "test")])),
+            parenLine
           ])
         ),
         ")",
@@ -1612,7 +1657,7 @@ function genericPrintNoParens(path, options, print, args) {
     case "CatchClause":
       return concat([
         "catch ",
-        n.param ? concat(["(", path.call(print, "param"), ") "]) : "",
+        n.param ? concat(["(", parenSpace, path.call(print, "param"), parenSpace, ") "]) : "",
         path.call(print, "body")
       ]);
     case "ThrowStatement":
@@ -1621,7 +1666,9 @@ function genericPrintNoParens(path, options, print, args) {
     case "SwitchStatement":
       return concat([
         "switch (",
+        parenSpace,
         path.call(print, "discriminant"),
+        parenSpace,
         ") {",
         n.cases.length > 0
           ? indent(
@@ -1709,7 +1756,14 @@ function genericPrintNoParens(path, options, print, args) {
     case "TSQualifiedName":
       return join(".", [path.call(print, "left"), path.call(print, "right")]);
     case "JSXSpreadAttribute":
-      return concat(["{...", path.call(print, "argument"), "}"]);
+      return concat([
+        "{",
+        parenSpace,
+        "...",
+        path.call(print, "argument"),
+        parenSpace,
+        "}"
+      ]);
     case "JSXExpressionContainer": {
       const parent = path.getParentNode(0);
 
@@ -1728,15 +1782,22 @@ function genericPrintNoParens(path, options, print, args) {
 
       if (shouldInline) {
         return group(
-          concat(["{", path.call(print, "expression"), lineSuffixBoundary, "}"])
+          concat([
+            "{",
+            parenSpace,
+            path.call(print, "expression"),
+            lineSuffixBoundary,
+            parenSpace,
+            "}"
+          ])
         );
       }
 
       return group(
         concat([
           "{",
-          indent(concat([softline, path.call(print, "expression")])),
-          softline,
+          indent(concat([parenLine, path.call(print, "expression")])),
+          parenLine,
           lineSuffixBoundary,
           "}"
         ])
@@ -1921,7 +1982,14 @@ function genericPrintNoParens(path, options, print, args) {
 
           const aligned = addAlignmentToDoc(expressions[i], size, tabWidth);
 
-          parts.push("${", aligned, lineSuffixBoundary, "}");
+          parts.push(
+            "${",
+            parenSpace,
+            aligned,
+            lineSuffixBoundary,
+            parenSpace,
+            "}"
+          );
         }
       }, "quasis");
 
@@ -2935,7 +3003,23 @@ function shouldGroupFirstArg(args) {
   );
 }
 
+function hasAddedLine(arg) {
+  switch (arg.type) {
+    case "concat":
+      if (arg.parts.length > 0) {
+        return hasAddedLine(arg.parts[arg.parts.length - 1]);
+      }
+      return false;
+    case "group":
+      return arg.addedLine;
+    default:
+      return false;
+  }
+}
+
 function printArgumentsList(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const args = path.getValue().arguments;
 
   if (args.length === 0) {
@@ -2982,6 +3066,7 @@ function printArgumentsList(path, options, print) {
 
     // We want to print the last argument with a special flag
     let printedExpanded;
+    let lastArgAddedLine = false;
     let i = 0;
     path.each(argPath => {
       if (shouldGroupFirst && i === 0) {
@@ -2995,9 +3080,13 @@ function printArgumentsList(path, options, print) {
         ].concat(printedArguments.slice(1));
       }
       if (shouldGroupLast && i === args.length - 1) {
+        const printedLastArg = argPath.call(p =>
+          print(p, { expandLastArg: true })
+        );
+        lastArgAddedLine = hasAddedLine(printedLastArg);
         printedExpanded = printedArguments
           .slice(0, -1)
-          .concat(argPath.call(p => print(p, { expandLastArg: true })));
+          .concat(printedLastArg);
       }
       i++;
     }, "arguments");
@@ -3006,20 +3095,30 @@ function printArgumentsList(path, options, print) {
       printedArguments.some(willBreak) ? breakParent : "",
       conditionalGroup(
         [
-          concat(["(", concat(printedExpanded), ")"]),
+          concat([
+            "(",
+            parenSpace,
+            concat(printedExpanded),
+            lastArgAddedLine ? "" : parenSpace,
+            ")"
+          ]),
           shouldGroupFirst
             ? concat([
                 "(",
+                parenSpace,
                 group(printedExpanded[0], { shouldBreak: true }),
                 concat(printedExpanded.slice(1)),
+                parenSpace,
                 ")"
               ])
             : concat([
                 "(",
+                parenSpace,
                 concat(printedArguments.slice(0, -1)),
                 group(util.getLast(printedExpanded), {
                   shouldBreak: true
                 }),
+                lastArgAddedLine ? "" : parenSpace,
                 ")"
               ]),
           group(
@@ -3041,9 +3140,9 @@ function printArgumentsList(path, options, print) {
   return group(
     concat([
       "(",
-      indent(concat([softline, concat(printedArguments)])),
+      indent(concat([parenLine, concat(printedArguments)])),
       ifBreak(shouldPrintComma(options, "all") ? "," : ""),
-      softline,
+      parenLine,
       ")"
     ]),
     { shouldBreak: printedArguments.some(willBreak) || anyArgEmptyLine }
@@ -3061,6 +3160,8 @@ function printFunctionTypeParameters(path, options, print) {
 function printFunctionParams(path, print, options, expandArg, printTypeParams) {
   const fun = path.getValue();
   const paramsField = fun.parameters ? "parameters" : "params";
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
 
   const typeParams = printTypeParams
     ? printFunctionTypeParameters(path, options, print)
@@ -3104,7 +3205,9 @@ function printFunctionParams(path, print, options, expandArg, printTypeParams) {
       concat([
         docUtils.removeLines(typeParams),
         "(",
+        parenSpace,
         join(", ", printed.map(docUtils.removeLines)),
+        parenSpace,
         ")"
       ])
     );
@@ -3118,7 +3221,14 @@ function printFunctionParams(path, print, options, expandArg, printTypeParams) {
   //   c
   // }) {}
   if (shouldHugArguments(fun)) {
-    return concat([typeParams, "(", join(", ", printed), ")"]);
+    return concat([
+      typeParams,
+      "(",
+      parenSpace,
+      join(", ", printed),
+      parenSpace,
+      ")"
+    ]);
   }
 
   const parent = path.getParentNode();
@@ -3168,11 +3278,11 @@ function printFunctionParams(path, print, options, expandArg, printTypeParams) {
   return concat([
     typeParams,
     "(",
-    indent(concat([softline, join(concat([",", line]), printed)])),
+    indent(concat([parenLine, join(concat([",", line]), printed)])),
     ifBreak(
       canHaveTrailingComma && shouldPrintComma(options, "all") ? "," : ""
     ),
-    softline,
+    parenLine,
     ")"
   ]);
 }
@@ -3536,6 +3646,8 @@ function printOptionalToken(path) {
 }
 
 function printMemberLookup(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const property = path.call(print, "property");
   const n = path.getValue();
   const optional = printOptionalToken(path);
@@ -3545,11 +3657,17 @@ function printMemberLookup(path, options, print) {
   }
 
   if (!n.property || isNumericLiteral(n.property)) {
-    return concat([optional, "[", property, "]"]);
+    return concat([optional, "[", parenSpace, property, parenSpace, "]"]);
   }
 
   return group(
-    concat([optional, "[", indent(concat([softline, property])), softline, "]"])
+    concat([
+      optional,
+      "[",
+      indent(concat([parenLine, property])),
+      parenLine,
+      "]"
+    ])
   );
 }
 

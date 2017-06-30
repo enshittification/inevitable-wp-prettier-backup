@@ -180,6 +180,12 @@ const detailedOptions = normalizeDetailedOptions({
     description:
       "Print the names of files that are different from Prettier's formatting."
   },
+  "paren-spacing": {
+    type: "boolean",
+    category: CATEGORY_FORMAT,
+    forwardToApi: true,
+    description: "Put spaces between parens, WordPress style."
+  },
   parser: {
     type: "choice",
     category: CATEGORY_FORMAT,
