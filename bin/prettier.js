@@ -23,6 +23,7 @@ const booleanOptionNames = [
   "semi",
   "single-quote",
   "bracket-spacing",
+  "paren-spacing",
   "jsx-bracket-same-line",
   // Deprecated in 0.0.10
   "flow-parser"
@@ -140,6 +141,7 @@ function getOptions(argv) {
     printWidth: getIntOption(argv, "print-width"),
     tabWidth: getIntOption(argv, "tab-width"),
     bracketSpacing: argv["bracket-spacing"],
+    parenSpacing: argv["paren-spacing"],
     singleQuote: argv["single-quote"],
     jsxBracketSameLine: argv["jsx-bracket-same-line"],
     filepath: argv["stdin-filepath"],
@@ -297,6 +299,7 @@ if (
       "  --no-semi                Do not print semicolons, except at the beginning of lines which may need them.\n" +
       "  --single-quote           Use single quotes instead of double quotes.\n" +
       "  --no-bracket-spacing     Do not print spaces between brackets.\n" +
+      "  --paren-spacing          Put spaces between parens, WordPress style.\n" +
       "  --jsx-bracket-same-line  Put > on the last line instead of at a new line.\n" +
       "  --trailing-comma <none|es5|all>\n" +
       "                           Print trailing commas wherever possible when multi-line. Defaults to none.\n" +
