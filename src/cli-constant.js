@@ -193,6 +193,12 @@ const detailedOptions = normalizeDetailedOptions({
     default: "warn",
     choices: ["silent", "error", "warn", "debug"]
   },
+  "paren-spacing": {
+    type: "boolean",
+    category: CATEGORY_FORMAT,
+    forwardToApi: true,
+    description: "Put spaces between parens, WordPress style."
+  },
   parser: {
     type: "choice",
     category: CATEGORY_FORMAT,

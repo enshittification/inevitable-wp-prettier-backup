@@ -15,6 +15,7 @@ var OPTIONS = [
   "singleQuote",
   "trailingComma",
   "bracketSpacing",
+  "parenSpacing",
   "jsxBracketSameLine",
   "parser",
   "semi",
