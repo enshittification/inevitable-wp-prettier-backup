@@ -45,6 +45,17 @@
   </a>
 </p>
 
+## Calypso-Prettier
+
+This is a fork of prettier that adds in all of the extra spaces we use in Calypso.
+It is forked off of prettier v1.5.
+
+In order to install run
+```sh
+npm i --save-dev "git+https://github.com/Automattic/calypso-prettier.git#calypso-1.5"
+```
+The original readme continues unchanged below:
+
 ## Intro
 
 Prettier is an opinionated code formatter. It enforces a consistent style by parsing your code and re-printing it with its own rules that take the maximum line length into account, wrapping code when necessary.
