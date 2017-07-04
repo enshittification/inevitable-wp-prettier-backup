@@ -23,6 +23,22 @@ const defaults = {
   requirePragma: false,
   semi: true,
   proseWrap: "preserve",
+  arrowParens: "avoid",
+  unlockOptions: false
+};
+
+const calypsoDefaults = {
+  useTabs: true,
+  tabWidth: 2,
+  printWidth: 100,
+  singleQuote: true,
+  trailingComma: "es5",
+  bracketSpacing: true,
+  parenSpacing: true,
+  jsxBracketSameLine: false,
+  insertPragma: true,
+  requirePragma: false,
+  semi: true,
   arrowParens: "avoid"
 };
 
@@ -116,6 +132,12 @@ function normalize(options) {
       normalized[k] = defaults[k];
     }
   });
+
+  // Calypso fork ignores all options and always uses the defaults. This is an escape hatch.
+  // comment out this block when running tests
+  if (!normalized.unlockOptions) {
+    Object.assign(normalized, calypsoDefaults);
+  }
 
   return normalized;
 }
