@@ -21,6 +21,19 @@ const defaults = {
   prependFormatComment: false
 };
 
+const calypsoDefaults = {
+  useTabs: true,
+  tabWidth: 2,
+  printWidth: 100,
+  singleQuote: true,
+  trailingComma: "es5",
+  bracketSpacing: true,
+  parenSpacing: true,
+  jsxBracketSameLine: false,
+  semi: true,
+  prependFormatComment: true
+};
+
 const exampleConfig = Object.assign({}, defaults, {
   filepath: "path/to/Filename",
   printWidth: 80,
@@ -97,6 +110,12 @@ function normalize(options) {
       normalized[k] = defaults[k];
     }
   });
+
+  // Calypso fork ignores all options and always uses the defaults. This is an escape hatch.
+  // comment out this block when running tests
+  if (!normalized.unlockOptions) {
+    Object.assign(normalized, calypsoDefaults);
+  }
 
   return normalized;
 }

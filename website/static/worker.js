@@ -35,6 +35,7 @@ self.onmessage = function(message) {
   delete options.ast;
   delete options.doc;
   delete options.output2;
+  options.unlockOptions = true;
 
   var formatted = formatCode(message.data.text, options);
   var doc;
