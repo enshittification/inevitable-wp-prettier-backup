@@ -311,9 +311,25 @@ FastPath.prototype.needsParens = function(options) {
         case "AwaitExpression":
         case "TSAsExpression":
         case "TSNonNullExpression":
+          // Logical and Binary expressions already got their parens if parent is UnaryExpression
+          if (
+            parent.type === "UnaryExpression" &&
+            (node.type === "LogicalExpression" ||
+              node.type === "BinaryExpression")
+          ) {
+            return false;
+          }
           return true;
 
         case "MemberExpression":
+          // Logical and Binary expressions already got their parens if parent is MemberExpression
+          if (
+            !parent.computed &&
+            (node.type === "LogicalExpression" ||
+              node.type === "BinaryExpression")
+          ) {
+            return false;
+          }
           return name === "object" && parent.object === node;
 
         case "AssignmentExpression":
