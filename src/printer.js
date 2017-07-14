@@ -358,7 +358,12 @@ function genericPrintNoParens(path, options, print, args) {
         (parent.type === "MemberExpression" && !parent.computed)
       ) {
         return group(
-          concat([indent(concat([softline, concat(parts)])), softline])
+          concat([
+            "(",
+            indent(concat([parenLine, concat(parts)])),
+            parenLine,
+            ")"
+          ])
         );
       }
 
@@ -4804,7 +4809,12 @@ function exprNeedsASIProtection(node) {
     node.type === "BindExpression" ||
     node.type === "RegExpLiteral" ||
     (node.type === "Literal" && node.pattern) ||
-    (node.type === "Literal" && node.regex);
+    (node.type === "Literal" && node.regex) ||
+    // needsParens is false for binaryish expr inside memberexpr, but is parenthesized nevertheless
+    (node.type === "MemberExpression" &&
+      !node.computed &&
+      (node.object.type === "LogicalExpression" ||
+        node.object.type === "BinaryExpression"));
 
   if (maybeASIProblem) {
     return true;
