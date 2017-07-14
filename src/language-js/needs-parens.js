@@ -236,9 +236,25 @@ function needsParens(path, options) {
         case "TSAsExpression":
         case "TSNonNullExpression":
         case "UpdateExpression":
+          // Logical and Binary expressions already got their parens if parent is UnaryExpression
+          if (
+            parent.type === "UnaryExpression" &&
+            (node.type === "LogicalExpression" ||
+              node.type === "BinaryExpression")
+          ) {
+            return false;
+          }
           return true;
 
         case "MemberExpression":
+          // Logical and Binary expressions already got their parens if parent is MemberExpression
+          if (
+            !parent.computed &&
+            (node.type === "LogicalExpression" ||
+              node.type === "BinaryExpression")
+          ) {
+            return false;
+          }
           return name === "object" && parent.object === node;
 
         case "AssignmentExpression":
