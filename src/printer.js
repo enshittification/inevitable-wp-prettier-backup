@@ -344,7 +344,12 @@ function genericPrintNoParens(path, options, print, args) {
 
       if (parent.type === "UnaryExpression") {
         return group(
-          concat([indent(concat([softline, concat(parts)])), softline])
+          concat([
+            "(",
+            indent(concat([parenLine, concat(parts)])),
+            parenLine,
+            ")"
+          ])
         );
       }
 
