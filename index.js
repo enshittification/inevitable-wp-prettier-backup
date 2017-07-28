@@ -12,6 +12,7 @@ const printDocToDebug = require("./src/doc-debug").printDocToDebug;
 const config = require("./src/resolve-config");
 const docblock = require("jest-docblock");
 const getStream = require("get-stream");
+const withPragma = require("./src/calypso-utils").withPragma;
 
 function guessLineEnding(text) {
   const index = text.indexOf("\n");
@@ -68,6 +69,14 @@ function formatWithCursor(text, opts, addAlignmentSize) {
   }
 
   text = stripBom(text);
+  // @todo: fix/verify that cursor offset is still correct even after @format is prepended
+  if (
+    opts.prependFormatComment &&
+    opts.rangeStart === 0 &&
+    opts.rangeEnd === Infinity
+  ) {
+    text = withPragma(text);
+  }
   addAlignmentSize = addAlignmentSize || 0;
 
   const ast = parser.parse(text, opts);
