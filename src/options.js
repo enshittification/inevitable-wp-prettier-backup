@@ -14,6 +14,7 @@ const defaults = {
   trailingComma: "es5",
   bracketSpacing: true,
   parenSpacing: true,
+  prependFormatComment: true,
   jsxBracketSameLine: false,
   parser: "babylon",
   semi: true

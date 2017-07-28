@@ -9,6 +9,8 @@ const printDocToString = require("./src/doc-printer").printDocToString;
 const normalizeOptions = require("./src/options").normalize;
 const parser = require("./src/parser");
 const printDocToDebug = require("./src/doc-debug").printDocToDebug;
+const prependFormatIfAbsent = require("./src/calypso-utils")
+  .prependFormatIfAbsent;
 
 function guessLineEnding(text) {
   const index = text.indexOf("\n");
@@ -56,6 +58,14 @@ function ensureAllCommentsPrinted(astComments) {
 
 function formatWithCursor(text, opts, addAlignmentSize) {
   text = stripBom(text);
+  // @todo: fix/verify that cursor offset is still correct even after @format is prepended
+  if (
+    opts.prependFormatComment &&
+    opts.rangeStart === 0 &&
+    opts.rangeEnd === Infinity
+  ) {
+    text = prependFormatIfAbsent(text);
+  }
   addAlignmentSize = addAlignmentSize || 0;
 
   const ast = parser.parse(text, opts);

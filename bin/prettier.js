@@ -146,6 +146,7 @@ const options = {
   tabWidth: getIntOption("tab-width"),
   bracketSpacing: argv["bracket-spacing"],
   parenSpacing: argv["paren-spacing"],
+  prependFormatComment: argv["prepend-format-comment"],
   singleQuote: argv["single-quote"],
   jsxBracketSameLine: argv["jsx-bracket-same-line"],
   filepath: argv["stdin-filepath"],
