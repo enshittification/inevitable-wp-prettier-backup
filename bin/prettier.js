@@ -25,6 +25,7 @@ const booleanOptionNames = [
   "bracket-spacing",
   "paren-spacing",
   "jsx-bracket-same-line",
+  "prepend-format-comment",
   // Deprecated in 0.0.10
   "flow-parser"
 ];
@@ -146,6 +147,7 @@ function getOptions(argv) {
     jsxBracketSameLine: argv["jsx-bracket-same-line"],
     filepath: argv["stdin-filepath"],
     trailingComma: getTrailingComma(argv),
+    prependFormatComment: argv["prepend-format-comment"],
     parser: getParserOption(argv)
   };
 }

@@ -16,7 +16,8 @@ const defaults = {
   parenSpacing: false,
   jsxBracketSameLine: false,
   parser: "babylon",
-  semi: true
+  semi: true,
+  prependFormatComment: false
 };
 
 const exampleConfig = Object.assign({}, defaults, {
