@@ -7,6 +7,21 @@ const defaults = {
   cursorOffset: -1,
   rangeStart: 0,
   rangeEnd: Infinity,
+  useTabs: false,
+  tabWidth: 2,
+  printWidth: 80,
+  singleQuote: false,
+  trailingComma: "none",
+  bracketSpacing: true,
+  jsxBracketSameLine: false,
+  parser: "babylon",
+  semi: true
+}; 
+
+const calypsoDefaults = {
+  cursorOffset: -1,
+  rangeStart: 0,
+  rangeEnd: Infinity,
   useTabs: true,
   tabWidth: 2,
   printWidth: 100,
@@ -29,8 +44,9 @@ const exampleConfig = Object.assign({}, defaults, {
 // Copy options and fill in default values.
 function normalize(options) {
   // Calypso fork ignores all options and always uses the defaults. This is an escape hatch.
+  // comment out this block when running tests
   if (!options.unlockOptions) {
-    return Object.assign({}, defaults);
+    return Object.assign({}, calypsoDefaults);
   }
 
   const normalized = Object.assign({}, options || {});
