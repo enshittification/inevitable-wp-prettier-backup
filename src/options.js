@@ -45,7 +45,7 @@ const exampleConfig = Object.assign({}, defaults, {
 function normalize(options) {
   // Calypso fork ignores all options and always uses the defaults. This is an escape hatch.
   // comment out this block when running tests
-  if (!typeof options === 'object' || !options.unlockOptions) {
+  if (typeof options !== 'object' || !options.unlockOptions) {
     return Object.assign({}, calypsoDefaults);
   }
 
