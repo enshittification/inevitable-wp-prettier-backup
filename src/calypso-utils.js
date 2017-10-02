@@ -19,7 +19,7 @@ const shouldFormat = text => {
  * 
  * @param String test to ensure has an @format marker in the top docblock
  */
-const insertPragma = text => {
+const withPragma = text => {
   if (shouldFormat(text)) {
     return text;
   }
@@ -34,5 +34,5 @@ const insertPragma = text => {
 
 module.exports = {
   shouldFormat,
-  insertPragma
+  withPragma
 };
