@@ -10,7 +10,7 @@ const normalizeOptions = require("./src/options").normalize;
 const parser = require("./src/parser");
 const printDocToDebug = require("./src/doc-debug").printDocToDebug;
 const config = require("./src/resolve-config");
-const prependFormatIfAbsent = require("./src/calypso-utils").prependFormatIfAbsent;
+const insertPragma = require("./src/calypso-utils").insertPragma;
 
 function guessLineEnding(text) {
   const index = text.indexOf("\n");
@@ -64,7 +64,7 @@ function formatWithCursor(text, opts, addAlignmentSize) {
     opts.rangeStart === 0 &&
     opts.rangeEnd === Infinity
   ) {
-    text = prependFormatIfAbsent(text);
+    text = insertPragma(text);
   }
   addAlignmentSize = addAlignmentSize || 0;
 
