@@ -1,5 +1,5 @@
 "use strict";
-const docblock = require('jest-docblock');
+const docblock = require("jest-docblock");
 
 /**
  * Returns true if the given text contains @format.
@@ -7,26 +7,29 @@ const docblock = require('jest-docblock');
  *
  * @param {String} text text to scan for the format keyword within the first docblock
  */
-const shouldFormat = text => {
-  const directives = docblock.parse(text);
-  return Object.keys(directives).indexOf('format') >= 0;
-};
+const shouldFormat = text => "format" in docblock.parse(text);
 
 /**
  * Given the src code for a file:
  *   if the first docblock in the file contains @format, do nothing
- *   else return the text but with @format in a docblock prepended
+ *   else return the text but with @format inserted to the first docblock (or a new one generated)
  * 
- * @param String text to prepend "/** @format *\/" to if it doesn't exist already
+ * @param String test to ensure has an @format marker in the top docblock
  */
-const prependFormatIfAbsent = text => {
+const withPragma = text => {
   if (shouldFormat(text)) {
     return text;
   }
-  return `/** @format */\n${text}`;
+  const parsedDocblock = docblock.parseWithComments(docblock.extract(text));
+  const pragmas = Object.assign({ format: "" }, parsedDocblock.pragmas);
+  const newDocblock = docblock.print({
+    pragmas,
+    comments: parsedDocblock.comments
+  });
+  return `${newDocblock}\n${docblock.strip(text)}`;
 };
 
 module.exports = {
   shouldFormat,
-  prependFormatIfAbsent
+  withPragma
 };
