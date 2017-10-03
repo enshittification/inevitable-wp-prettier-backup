@@ -7,10 +7,7 @@ const docblock = require("jest-docblock");
  *
  * @param {String} text text to scan for the format keyword within the first docblock
  */
-const shouldFormat = text => {
-  const directives = docblock.parse(text);
-  return Object.keys(directives).indexOf("format") >= 0;
-};
+const shouldFormat = text => "format" in docblock.parse(text);
 
 /**
  * Given the src code for a file:
@@ -24,7 +21,7 @@ const withPragma = text => {
     return text;
   }
   const parsedDocblock = docblock.parseWithComments(docblock.extract(text));
-  const pragmas = Object.assign({}, { format: "" }, parsedDocblock.pragmas);
+  const pragmas = Object.assign({ format: "" }, parsedDocblock.pragmas);
   const newDocblock = docblock.print({
     pragmas,
     comments: parsedDocblock.comments
