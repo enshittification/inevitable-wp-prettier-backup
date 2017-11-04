@@ -191,7 +191,7 @@ function genericPrint(path, options, printPath, args) {
       node.trailingComments[0].printed = true;
     }
 
-    parts.push(parenSpace, ")");
+    parts.push(hasAddedLine(linesWithoutParens) ? "" : parenSpace, ")");
   }
 
   if (decorators.length > 0) {
@@ -375,12 +375,12 @@ function printTernaryOperator(path, options, print, operatorOptions) {
   // We want a whole chain of ConditionalExpressions to all
   // break if any of them break. That means we should only group around the
   // outer-most ConditionalExpression.
-  const maybeGroup = doc =>
+  const maybeGroup = (doc, options) =>
     operatorOptions.breakNested
       ? parent === firstNonConditionalParent
-        ? group(doc)
+        ? group(doc, options)
         : doc
-      : group(doc);
+      : group(doc, options); // Always group in normal mode.
 
   // Break the closing paren to keep the chain right after it:
   // (a
@@ -414,7 +414,8 @@ function printTernaryOperator(path, options, print, operatorOptions) {
         forceNoIndent ? concat(parts) : indent(concat(parts)),
         operatorOptions.afterParts(breakClosingParen)
       )
-    )
+    ),
+    { addedLine: breakClosingParen }
   );
 }
 
@@ -1682,7 +1683,7 @@ function printPathNoParens(path, options, print, args) {
     case "ConditionalExpression":
       return printTernaryOperator(path, options, print, {
         beforeParts: () => [path.call(print, "test")],
-        afterParts: breakClosingParen => [breakClosingParen ? softline : ""],
+        afterParts: breakClosingParen => [breakClosingParen ? parenLine : ""],
         shouldCheckJsx: true,
         conditionalNodeType: "ConditionalExpression",
         consequentNodePropertyName: "consequent",
