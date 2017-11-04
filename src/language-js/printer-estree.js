@@ -142,7 +142,7 @@ function genericPrint(path, options, printPath, args) {
   parts.push(linesWithoutParens);
 
   if (needsParens) {
-    parts.push(parenSpace, ")");
+    parts.push(hasAddedLine(linesWithoutParens) ? "" : parenSpace, ")");
   }
 
   if (decorators.length > 0) {
@@ -292,12 +292,12 @@ function formatTernaryOperator(path, options, print, operatorOptions) {
   // We want a whole chain of ConditionalExpressions to all
   // break if any of them break. That means we should only group around the
   // outer-most ConditionalExpression.
-  const maybeGroup = doc =>
+  const maybeGroup = (doc, options) =>
     operatorOpts.breakNested
       ? parent === firstNonConditionalParent
-        ? group(doc)
+        ? group(doc, options)
         : doc
-      : group(doc); // Always group in normal mode.
+      : group(doc, options); // Always group in normal mode.
 
   // Break the closing paren to keep the chain right after it:
   // (a
@@ -317,7 +317,8 @@ function formatTernaryOperator(path, options, print, operatorOptions) {
         forceNoIndent ? concat(parts) : indent(concat(parts)),
         operatorOpts.afterParts(breakClosingParen)
       )
-    )
+    ),
+    { addedLine: breakClosingParen }
   );
 }
 
@@ -1479,7 +1480,7 @@ function printPathNoParens(path, options, print, args) {
     case "ConditionalExpression":
       return formatTernaryOperator(path, options, print, {
         beforeParts: () => [path.call(print, "test")],
-        afterParts: breakClosingParen => [breakClosingParen ? softline : ""]
+        afterParts: breakClosingParen => [breakClosingParen ? parenLine : ""]
       });
     case "VariableDeclaration": {
       const printed = path.map(childPath => {
