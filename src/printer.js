@@ -232,7 +232,7 @@ function genericPrint(path, options, printPath, args) {
   parts.push(linesWithoutParens);
 
   if (needsParens) {
-    parts.push(parenSpace, ")");
+    parts.push(hasAddedLine(linesWithoutParens) ? "" : parenSpace, ")");
   }
 
   if (decorators.length > 0) {
@@ -1380,10 +1380,10 @@ function genericPrintNoParens(path, options, print, args) {
       // In JSX mode, we want a whole chain of ConditionalExpressions to all
       // break if any of them break. That means we should only group around the
       // outer-most ConditionalExpression.
-      const maybeGroup = doc =>
+      const maybeGroup = (doc, options) =>
         jsxMode
-          ? parent === firstNonConditionalParent ? group(doc) : doc
-          : group(doc); // Always group in normal mode.
+          ? parent === firstNonConditionalParent ? group(doc, options) : doc
+          : group(doc, options); // Always group in normal mode.
 
       // Break the closing paren to keep the chain right after it:
       // (a
@@ -1397,8 +1397,9 @@ function genericPrintNoParens(path, options, print, args) {
         concat([
           path.call(print, "test"),
           forceNoIndent ? concat(parts) : indent(concat(parts)),
-          breakClosingParen ? softline : ""
-        ])
+          breakClosingParen ? parenLine : ""
+        ]),
+        { addedLine: breakClosingParen }
       );
     }
     case "VariableDeclaration": {
