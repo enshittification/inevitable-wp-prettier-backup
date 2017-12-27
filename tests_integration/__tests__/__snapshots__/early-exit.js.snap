@@ -261,6 +261,19 @@ exports[`show detailed usage with --help no-semi (stdout) 1`] = `
 
 exports[`show detailed usage with --help no-semi (write) 1`] = `Array []`;
 
+exports[`show detailed usage with --help paren-spacing (stderr) 1`] = `""`;
+
+exports[`show detailed usage with --help paren-spacing (stdout) 1`] = `
+"--paren-spacing
+
+  Put spaces between parens, WordPress style.
+
+Default: false
+"
+`;
+
+exports[`show detailed usage with --help paren-spacing (write) 1`] = `Array []`;
+
 exports[`show detailed usage with --help parser (stderr) 1`] = `""`;
 
 exports[`show detailed usage with --help parser (stdout) 1`] = `
@@ -520,6 +533,8 @@ Format options:
   --no-bracket-spacing     Do not print spaces between brackets.
   --jsx-bracket-same-line  Put > on the last line instead of at a new line.
                            Defaults to false.
+  --paren-spacing          Put spaces between parens, WordPress style.
+                           Defaults to false.
   --parser <flow|babylon|typescript|css|less|scss|json|graphql|markdown>
                            Which parser to use.
                            Defaults to babylon.
@@ -658,6 +673,8 @@ Format options:
                            Defaults to avoid.
   --no-bracket-spacing     Do not print spaces between brackets.
   --jsx-bracket-same-line  Put > on the last line instead of at a new line.
+                           Defaults to false.
+  --paren-spacing          Put spaces between parens, WordPress style.
                            Defaults to false.
   --parser <flow|babylon|typescript|css|less|scss|json|graphql|markdown>
                            Which parser to use.
