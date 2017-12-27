@@ -70,6 +70,8 @@ Format options:
                            Defaults to false.
   --jsx-single-quote       Use single quotes in JSX.
                            Defaults to false.
+  --paren-spacing          Print spaces between parens, WordPress style.
+                           Defaults to false.
   --parser <flow|babylon|typescript|css|less|scss|json|json5|json-stringify|graphql|markdown|mdx|vue|yaml|html|angular>
                            Which parser to use.
   --print-width <int>      The line length where Prettier will try wrap.
@@ -215,6 +217,8 @@ Format options:
   --jsx-bracket-same-line  Put > on the last line instead of at a new line.
                            Defaults to false.
   --jsx-single-quote       Use single quotes in JSX.
+                           Defaults to false.
+  --paren-spacing          Print spaces between parens, WordPress style.
                            Defaults to false.
   --parser <flow|babylon|typescript|css|less|scss|json|json5|json-stringify|graphql|markdown|mdx|vue|yaml|html|angular>
                            Which parser to use.
