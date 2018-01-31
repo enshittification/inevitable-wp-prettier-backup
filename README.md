@@ -43,11 +43,11 @@
 ## Calypso-Prettier
 
 This is a fork of prettier that adds in all of the extra spaces we use in Calypso.
-It is forked off of prettier v1.5.
+It is forked off of prettier v1.9.
 
 In order to install run
 ```sh
-npm i --save-dev "git+https://github.com/Automattic/calypso-prettier.git#calypso-1.5"
+npm i --save-dev "git+https://github.com/Automattic/calypso-prettier.git#calypso-1.9"
 ```
 The original readme continues unchanged below:
 
