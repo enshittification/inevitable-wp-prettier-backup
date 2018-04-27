@@ -379,10 +379,17 @@ function genericPrint(path, options, print) {
       return group(indent(concat(path.map(print, "nodes"))));
     }
     case "selector-pseudo": {
+      const parenSpace = options.parenSpacing ? " " : "";
       return concat([
         maybeToLowerCase(node.value),
         node.nodes && node.nodes.length > 0
-          ? concat(["(", join(", ", path.map(print, "nodes")), ")"])
+          ? concat([
+              "(",
+              parenSpace,
+              join(", ", path.map(print, "nodes")),
+              parenSpace,
+              ")"
+            ])
           : ""
       ]);
     }
