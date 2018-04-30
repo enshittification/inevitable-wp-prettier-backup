@@ -29,6 +29,13 @@ module.exports = {
     description: "Print spaces between brackets.",
     oppositeDescription: "Do not print spaces between brackets."
   },
+  parenSpacing: {
+    since: "0.0.0",
+    category: CATEGORY_JAVASCRIPT,
+    type: "boolean",
+    default: false,
+    description: "Print spaces between parens, WordPress style."
+  },
   jsxBracketSameLine: {
     since: "0.17.0",
     category: CATEGORY_JAVASCRIPT,
