@@ -2509,7 +2509,7 @@ function printPathNoParens(path, options, print, args) {
       }
 
       if (needsParens) {
-        parts.push("(");
+        parts.push("(", parenSpace);
       }
 
       parts.push(
@@ -2533,7 +2533,7 @@ function printPathNoParens(path, options, print, args) {
         );
       }
       if (needsParens) {
-        parts.push(")");
+        parts.push(parenSpace, ")");
       }
 
       return group(concat(parts));
@@ -3864,7 +3864,7 @@ function printFunctionParams(path, print, options, expandArg, printTypeParams) {
 
   if (isFlowShorthandWithOneArg) {
     if (options.arrowParens === "always") {
-      return concat(["(", concat(printed), ")"]);
+      return concat(["(", parenSpace, concat(printed), parenSpace, ")"]);
     }
     return concat(printed);
   }
@@ -4151,6 +4151,8 @@ function printTypeScriptModifiers(path, options, print) {
 }
 
 function printTypeParameters(path, options, print, paramsKey) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const n = path.getValue();
 
   if (!n[paramsKey]) {
@@ -4178,7 +4180,7 @@ function printTypeParameters(path, options, print, paramsKey) {
         n[paramsKey][0].type === "NullableTypeAnnotation"));
 
   if (shouldInline) {
-    return concat(["<", join(", ", path.map(print, paramsKey)), ">"]);
+    return concat(["<", parenSpace, join(", ", path.map(print, paramsKey)), parenSpace, ">"]);
   }
 
   return group(
@@ -4186,7 +4188,7 @@ function printTypeParameters(path, options, print, paramsKey) {
       "<",
       indent(
         concat([
-          softline,
+          parenLine,
           join(concat([",", line]), path.map(print, paramsKey))
         ])
       ),
@@ -4195,7 +4197,7 @@ function printTypeParameters(path, options, print, paramsKey) {
           ? ","
           : ""
       ),
-      softline,
+      parenLine,
       ">"
     ])
   );
