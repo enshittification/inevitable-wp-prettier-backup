@@ -55,15 +55,16 @@
   </a>
 </p>
 
-## Calypso-Prettier
+## WordPress Prettier
 
-This is a fork of prettier that adds in all of the extra spaces we use in Calypso.
-It is forked off of prettier v1.5.
+This is a fork of Prettier that adds a new command line option `--paren-spacing` which inserts many extra spaces inside parentheses, the way how projects in the WordPress ecosystem (Calypso, Gutenberg, etc.) like to format their code.
 
-In order to install run
+In order to install a version based on a particular upstream version (like 1.x.x), run
 ```sh
-npm i --save-dev "git+https://github.com/Automattic/calypso-prettier.git#calypso-1.5"
+npm i --save-dev "git+https://github.com/Automattic/calypso-prettier.git#wp-prettier-1.x.x"
 ```
+To figure out what the latest supported version of the fork is, look at the default branch of this repository.
+
 The original readme continues unchanged below:
 
 ## Intro
