@@ -2589,13 +2589,13 @@ function printPathNoParens(path, options, print, args) {
           "[",
           indent(
             concat([
-              softline,
+              parenLine,
               printArrayItems(path, options, typesField, print)
             ])
           ),
           ifBreak(shouldPrintComma(options, "all") ? "," : ""),
           comments.printDanglingComments(path, options, /* sameIndent */ true),
-          softline,
+          parenLine,
           "]"
         ])
       );
@@ -3146,11 +3146,11 @@ function printPathNoParens(path, options, print, args) {
     case "TypeParameter": {
       const parent = path.getParentNode();
       if (parent.type === "TSMappedType") {
-        parts.push("[", path.call(print, "name"));
+        parts.push("[", parenSpace, path.call(print, "name"));
         if (n.constraint) {
           parts.push(" in ", path.call(print, "constraint"));
         }
-        parts.push("]");
+        parts.push(parenSpace, "]");
         return concat(parts);
       }
 
@@ -3316,7 +3316,13 @@ function printPathNoParens(path, options, print, args) {
         n.static ? "static " : "",
         n.readonly ? "readonly " : "",
         "[",
-        n.parameters ? concat(path.map(print, "parameters")) : "",
+        n.parameters
+          ? concat([
+              parenSpace,
+              concat(path.map(print, "parameters")),
+              parenSpace
+            ])
+          : "",
         "]: ",
         path.call(print, "typeAnnotation"),
         parent.type === "ClassBody" ? semi : ""
@@ -3349,7 +3355,9 @@ function printPathNoParens(path, options, print, args) {
       return concat([
         path.call(print, "objectType"),
         "[",
+        parenSpace,
         path.call(print, "indexType"),
+        parenSpace,
         "]"
       ]);
     case "TSConstructSignatureDeclaration":
