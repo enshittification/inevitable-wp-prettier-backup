@@ -5626,7 +5626,13 @@ function printJSXElement(path, options, print) {
 
   const isMdxBlock = path.getParentNode().rootMarker === "mdx";
 
-  const rawJsxWhitespace = options.singleQuote ? "{' '}" : '{" "}';
+  const rawJsxWhitespace = options.parenSpacing
+    ? options.singleQuote
+      ? "{ ' ' }"
+      : '{ " " }'
+    : options.singleQuote
+    ? "{' '}"
+    : '{" "}';
   const jsxWhitespace = isMdxBlock
     ? concat([" "])
     : ifBreak(concat([rawJsxWhitespace, softline]), " ");
