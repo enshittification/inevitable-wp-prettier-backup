@@ -20,6 +20,7 @@ function embed(path, print, textToDoc, options) {
   const node = path.getValue();
   const parent = path.getParentNode();
   const parentParent = path.getParentNode(1);
+  const parenSpace = options.parenSpacing ? " " : "";
 
   switch (node.type) {
     case "TemplateLiteral": {
@@ -44,7 +45,7 @@ function embed(path, print, textToDoc, options) {
                 currVal;
         }, "");
         const doc = textToDoc(text, { parser: "css" });
-        return transformCssDoc(doc, path, print);
+        return transformCssDoc(doc, path, print, options);
       }
 
       /*
@@ -123,7 +124,9 @@ function embed(path, print, textToDoc, options) {
           }
 
           if (expressionDoc) {
-            parts.push(concat(["${", expressionDoc, "}"]));
+            parts.push(
+              concat(["${", parenSpace, expressionDoc, parenSpace, "}"])
+            );
           }
         }
 
@@ -147,7 +150,7 @@ function embed(path, print, textToDoc, options) {
           print,
           textToDoc,
           htmlParser,
-          options.embeddedInHtml
+          options
         );
       }
 
@@ -226,7 +229,7 @@ function escapeTemplateCharacters(doc, raw) {
   });
 }
 
-function transformCssDoc(quasisDoc, path, print) {
+function transformCssDoc(quasisDoc, path, print, options) {
   const parentNode = path.getValue();
 
   const isEmpty =
@@ -238,7 +241,7 @@ function transformCssDoc(quasisDoc, path, print) {
   const expressionDocs = parentNode.expressions
     ? path.map(print, "expressions")
     : [];
-  const newDoc = replacePlaceholders(quasisDoc, expressionDocs);
+  const newDoc = replacePlaceholders(quasisDoc, expressionDocs, options);
   /* istanbul ignore if */
   if (!newDoc) {
     throw new Error("Couldn't insert all the expressions");
@@ -255,7 +258,9 @@ function transformCssDoc(quasisDoc, path, print) {
 // and replace them with the expression docs one by one
 // returns a new doc with all the placeholders replaced,
 // or null if it couldn't replace any expression
-function replacePlaceholders(quasisDoc, expressionDocs) {
+function replacePlaceholders(quasisDoc, expressionDocs, options) {
+  const parenSpace = options.parenSpacing ? " " : "";
+
   if (!expressionDocs || !expressionDocs.length) {
     return quasisDoc;
   }
@@ -302,7 +307,7 @@ function replacePlaceholders(quasisDoc, expressionDocs) {
       replaceCounter++;
       parts = parts
         .slice(0, atPlaceholderIndex)
-        .concat(["${", expression, "}" + suffix])
+        .concat(["${", parenSpace, expression, parenSpace, "}", suffix])
         .concat(rest);
     }
     return Object.assign({}, doc, {
@@ -586,13 +591,10 @@ function isHtml(path) {
 // The counter is needed to distinguish nested embeds.
 let htmlTemplateLiteralCounter = 0;
 
-function printHtmlTemplateLiteral(
-  path,
-  print,
-  textToDoc,
-  parser,
-  escapeClosingScriptTag
-) {
+function printHtmlTemplateLiteral(path, print, textToDoc, parser, options) {
+  const escapeClosingScriptTag = options.embeddedInHtml;
+  const parenSpace = options.parenSpacing ? " " : "";
+
   const node = path.getValue();
 
   const counter = htmlTemplateLiteralCounter;
@@ -643,7 +645,13 @@ function printHtmlTemplateLiteral(
 
         const placeholderIndex = +component;
         parts.push(
-          concat(["${", group(expressionDocs[placeholderIndex]), "}"])
+          concat([
+            "${",
+            parenSpace,
+            group(expressionDocs[placeholderIndex]),
+            parenSpace,
+            "}"
+          ])
         );
       }
 

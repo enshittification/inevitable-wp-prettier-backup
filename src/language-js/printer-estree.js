@@ -3940,6 +3940,7 @@ function printJestEachTemplateLiteral(node, expressions, options) {
    * ${1} | ${2} | ${3}
    * ${2} | ${1} | ${3}
    */
+  const parenSpace = options.parenSpacing ? " " : "";
   const headerNames = node.quasis[0].value.raw.trim().split(/\s*\|\s*/);
   if (
     headerNames.length > 1 ||
@@ -3949,6 +3950,7 @@ function printJestEachTemplateLiteral(node, expressions, options) {
     const stringifiedExpressions = expressions.map(
       doc =>
         "${" +
+        parenSpace +
         printDocToString(
           doc,
           Object.assign({}, options, {
@@ -3956,6 +3958,7 @@ function printJestEachTemplateLiteral(node, expressions, options) {
             endOfLine: "lf"
           })
         ).formatted +
+        parenSpace +
         "}"
     );
 
