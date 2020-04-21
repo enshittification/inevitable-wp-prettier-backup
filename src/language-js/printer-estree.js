@@ -2560,12 +2560,8 @@ function printPathNoParens(path, options, print, args) {
               isBinaryish(n.expressions[i])
             ) {
               printed = concat([
-                // If we are using parenSpace, parenLine already contains a space, so this
-                // will be equivalent to `" " + printed + " "`
-                // If we are not using parenSpace, then parenSpace is an empty string, so
-                // this will be equivalent to `"" + printed + ""`
-                indent(concat([parenLine, printed, parenSpace])),
-                softline,
+                indent(concat([parenLine, printed])),
+                parenLine,
               ]);
             } else {
               printed = concat([parenSpace, printed, parenSpace]);
