@@ -59,15 +59,20 @@
   <a href="https://twitter.com/PrettierCode">
     <img alt="Follow Prettier on Twitter" src="https://img.shields.io/twitter/follow/prettiercode.svg?label=follow+prettier&style=flat-square"></a>
 </p>
-
-## WordPress Prettier
+# WordPress Prettier
 
 This is a fork of Prettier that adds a new command line option `--paren-spacing` which inserts many extra spaces inside parentheses, the way how projects in the WordPress ecosystem (Calypso, Gutenberg, etc.) like to format their code.
 
-In order to install a version based on a particular upstream version (like 1.x.x), run
+In order to install the latest version, run
 
 ```sh
-npm i --save-dev "git+https://github.com/Automattic/wp-prettier.git#wp-prettier-1.x.x"
+npm i --save-dev "prettier@npm:wp-prettier@latest"
+```
+
+To order to install a version based on a particular upstream version (like 1.x.x), run
+
+```sh
+npm i --save-dev "prettier@git+https://github.com/Automattic/wp-prettier.git#wp-prettier-1.x.x"
 ```
 
 To figure out what the latest supported version of the fork is, look at the default branch of this repository.
