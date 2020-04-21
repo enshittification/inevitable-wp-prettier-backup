@@ -2561,9 +2561,9 @@ function printPathNoParens(path, options, print, args) {
             ) {
               printed = concat([
                 // If we are using parenSpace, parenLine already contains a space, so this
-                // will be equivalent to " " + pritned + " "
+                // will be equivalent to `" " + printed + " "`
                 // If we are not using parenSpace, then parenSpace is an empty string, so
-                // this will be equivalent to "" + printed + ""
+                // this will be equivalent to `"" + printed + ""`
                 indent(concat([parenLine, printed, parenSpace])),
                 softline,
               ]);
@@ -6055,7 +6055,7 @@ function exprNeedsASIProtection(path, options) {
     node.type === "RegExpLiteral" ||
     (node.type === "Literal" && node.pattern) ||
     (node.type === "Literal" && node.regex) ||
-    // needsParens is false for binaryish expr inside memberexpr, but is parenthesized nevertheless
+    // needsParens is false for binaryish expr inside member expr, but is parenthesized nevertheless
     (node.type === "MemberExpression" &&
       !node.computed &&
       (node.object.type === "LogicalExpression" ||
