@@ -2561,7 +2561,7 @@ function printPathNoParens(path, options, print, args) {
             ) {
               printed = concat([
                 indent(concat([parenLine, printed])),
-                softline,
+                parenLine,
               ]);
             } else {
               printed = concat([parenSpace, printed, parenSpace]);
@@ -6051,7 +6051,7 @@ function exprNeedsASIProtection(path, options) {
     node.type === "RegExpLiteral" ||
     (node.type === "Literal" && node.pattern) ||
     (node.type === "Literal" && node.regex) ||
-    // needsParens is false for binaryish expr inside memberexpr, but is parenthesized nevertheless
+    // needsParens is false for binaryish expr inside member expr, but is parenthesized nevertheless
     (node.type === "MemberExpression" &&
       !node.computed &&
       (node.object.type === "LogicalExpression" ||

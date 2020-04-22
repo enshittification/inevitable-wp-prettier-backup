@@ -328,7 +328,7 @@ function genericPrint(path, options, print) {
         parenSpace,
         concat(path.map(print, "nodes")),
         parenSpace,
-        ")"
+        ")",
       ]);
     }
     case "media-feature": {
