@@ -3,7 +3,7 @@
 const { isNumericLiteral } = require("../utils");
 
 const {
-  builders: { concat, softline, group, indent },
+  builders: { concat, line, softline, group, indent },
 } = require("../../document");
 
 function printOptionalToken(path) {
@@ -37,6 +37,8 @@ function printFunctionTypeParameters(path, options, print) {
 }
 
 function printMemberLookup(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const property = path.call(print, "property");
   const n = path.getValue();
   const optional = printOptionalToken(path);
@@ -46,11 +48,11 @@ function printMemberLookup(path, options, print) {
   }
 
   if (!n.property || isNumericLiteral(n.property)) {
-    return concat([optional, "[", property, "]"]);
+    return concat([optional, "[", parenSpace, property, parenSpace, "]"]);
   }
 
   return group(
-    concat([optional, "[", indent(concat([softline, property])), softline, "]"])
+    concat([optional, "[", indent(concat([parenLine, property])), parenLine, "]"])
   );
 }
 

@@ -48,7 +48,7 @@ function embed(path, print, textToDoc, options) {
           { parser: "scss" },
           { stripTrailingHardline: true }
         );
-        return transformCssDoc(doc, path, print);
+        return transformCssDoc(doc, path, print, options);
       }
 
       /*
@@ -236,7 +236,7 @@ function escapeTemplateCharacters(doc, raw) {
   });
 }
 
-function transformCssDoc(quasisDoc, path, print) {
+function transformCssDoc(quasisDoc, path, print, options) {
   const parentNode = path.getValue();
 
   const isEmpty =
@@ -248,7 +248,7 @@ function transformCssDoc(quasisDoc, path, print) {
   const expressionDocs = parentNode.expressions
     ? path.map(print, "expressions")
     : [];
-  const newDoc = replacePlaceholders(quasisDoc, expressionDocs);
+  const newDoc = replacePlaceholders(quasisDoc, expressionDocs, options);
   /* istanbul ignore if */
   if (!newDoc) {
     throw new Error("Couldn't insert all the expressions");
@@ -260,7 +260,9 @@ function transformCssDoc(quasisDoc, path, print) {
 // and replace them with the expression docs one by one
 // returns a new doc with all the placeholders replaced,
 // or null if it couldn't replace any expression
-function replacePlaceholders(quasisDoc, expressionDocs) {
+function replacePlaceholders(quasisDoc, expressionDocs, options) {
+  const parenSpace = options.parenSpacing ? " " : "";
+
   if (!expressionDocs || !expressionDocs.length) {
     return quasisDoc;
   }
@@ -306,7 +308,7 @@ function replacePlaceholders(quasisDoc, expressionDocs) {
         }
 
         // The component will always be a number at odd index
-        replacedParts.push("${", expressionDocs[component], "}");
+        replacedParts.push("${", parenSpace, expressionDocs[component], parenSpace, "}");
         replaceCounter++;
       });
     });
@@ -556,6 +558,7 @@ let htmlTemplateLiteralCounter = 0;
 
 function printHtmlTemplateLiteral(path, print, textToDoc, parser, options) {
   const node = path.getValue();
+  const parenSpace = options.parenSpacing ? " " : "";
 
   const counter = htmlTemplateLiteralCounter;
   htmlTemplateLiteralCounter = (htmlTemplateLiteralCounter + 1) >>> 0;
@@ -615,7 +618,13 @@ function printHtmlTemplateLiteral(path, print, textToDoc, parser, options) {
 
         const placeholderIndex = +component;
         parts.push(
-          concat(["${", group(expressionDocs[placeholderIndex]), "}"])
+          concat([
+            "${",
+            parenSpace,
+            group(expressionDocs[placeholderIndex]),
+            parenSpace,
+            "}",
+          ])
         );
       }
 
