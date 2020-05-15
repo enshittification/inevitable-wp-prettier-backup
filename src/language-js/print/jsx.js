@@ -19,6 +19,7 @@ const {
 
 const { getLast, getPreferredQuote } = require("../../common/util");
 const {
+  hasAddedLine,
   hasTrailingComment,
   isEmptyJSXElement,
   isJSXWhitespaceExpression,
@@ -112,7 +113,14 @@ function printJsxElementInternal(path, options, print) {
 
   const isMdxBlock = path.getParentNode().rootMarker === "mdx";
 
-  const rawJsxWhitespace = options.singleQuote ? "{' '}" : '{" "}';
+  const rawJsxWhitespace = options.parenSpacing
+    ? options.singleQuote
+      ? "{ ' ' }"
+      : '{ " " }'
+    : options.singleQuote
+    ? "{' '}"
+    : '{" "}';
+
   const jsxWhitespace = isMdxBlock
     ? concat([" "])
     : ifBreak(concat([rawJsxWhitespace, softline]), " ");
@@ -503,6 +511,8 @@ function printJsxAttribute(path, options, print) {
 }
 
 function printJsxExpressionContainer(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const n = path.getValue();
   const parent = path.getParentNode(0);
 
@@ -525,16 +535,24 @@ function printJsxExpressionContainer(path, options, print) {
             isBinaryish(n.expression)))));
 
   if (shouldInline) {
+    const printed = path.call(print, "expression");
     return group(
-      concat(["{", path.call(print, "expression"), lineSuffixBoundary, "}"])
+      concat([
+        "{",
+        parenSpace,
+        printed,
+        lineSuffixBoundary,
+        hasAddedLine(printed) ? "" : parenSpace,
+        "}",
+      ])
     );
   }
 
   return group(
     concat([
       "{",
-      indent(concat([softline, path.call(print, "expression")])),
-      softline,
+      indent(concat([parenLine, path.call(print, "expression")])),
+      parenLine,
       lineSuffixBoundary,
       "}",
     ])
@@ -686,6 +704,8 @@ function printJsxEmptyExpression(path, options /*, print*/) {
 
 // `JSXSpreadAttribute` and `JSXSpreadChild`
 function printJsxSpreadAttribute(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const n = path.getValue();
   return concat([
     "{",
@@ -694,11 +714,11 @@ function printJsxSpreadAttribute(path, options, print) {
         const printed = concat(["...", print(p)]);
         const n = p.getValue();
         if (!n.comments || !n.comments.length || !willPrintOwnComments(p)) {
-          return printed;
+          return concat([parenSpace, printed, parenSpace]);
         }
         return concat([
-          indent(concat([softline, printComments(p, () => printed, options)])),
-          softline,
+          indent(concat([parenLine, printComments(p, () => printed, options)])),
+          parenLine,
         ]);
       },
       n.type === "JSXSpreadAttribute" ? "argument" : "expression"

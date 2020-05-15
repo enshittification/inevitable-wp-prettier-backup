@@ -16,10 +16,11 @@ const {
 const needsQuoteProps = new WeakMap();
 
 function printPropertyKey(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const node = path.getNode();
 
   if (node.computed) {
-    return concat(["[", path.call(print, "key"), "]"]);
+    return concat(["[", parenSpace, path.call(print, "key"), parenSpace, "]"]);
   }
 
   const parent = path.getParentNode();

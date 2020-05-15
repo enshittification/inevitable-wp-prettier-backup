@@ -239,6 +239,16 @@ function needsParens(path, options) {
         case "CallExpression":
         case "NewExpression":
         case "OptionalCallExpression":
+          // Logical and Binary expressions already got their parens if parent is CallExpression
+          if (
+            (parent.type === "CallExpression" ||
+              parent.type === "OptionalCallExpression") &&
+            name === "callee" &&
+            (node.type === "LogicalExpression" ||
+              node.type === "BinaryExpression")
+          ) {
+            return false;
+          }
           return name === "callee";
 
         case "ClassExpression":
@@ -256,10 +266,26 @@ function needsParens(path, options) {
         case "TSAsExpression":
         case "TSNonNullExpression":
         case "UpdateExpression":
+          // Logical and Binary expressions already got their parens if parent is UnaryExpression
+          if (
+            parent.type === "UnaryExpression" &&
+            (node.type === "LogicalExpression" ||
+              node.type === "BinaryExpression")
+          ) {
+            return false;
+          }
           return true;
 
         case "MemberExpression":
         case "OptionalMemberExpression":
+          // Logical and Binary expressions already got their parens if parent is MemberExpression
+          if (
+            !parent.computed &&
+            (node.type === "LogicalExpression" ||
+              node.type === "BinaryExpression")
+          ) {
+            return false;
+          }
           return name === "object";
 
         case "AssignmentExpression":
@@ -692,7 +718,15 @@ function needsParens(path, options) {
           parent.arguments[name] === node) ||
         (name === "right" && parent.type === "NGPipeExpression") ||
         (name === "property" && parent.type === "MemberExpression") ||
-        parent.type === "AssignmentExpression"
+        parent.type === "AssignmentExpression" ||
+        // Pipe expression already got the parens when breaking inside certain parents
+        parent.type === "UnaryExpression" ||
+        ((parent.type === "MemberExpression" ||
+          parent.type === "OptionalMemberExpression") &&
+          !parent.computed) ||
+        (parent.type === "CallExpression" &&
+          name === "callee" &&
+          parent.callee === node)
       ) {
         return false;
       }

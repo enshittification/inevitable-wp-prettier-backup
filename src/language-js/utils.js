@@ -1501,6 +1501,20 @@ function hasIgnoreComment(path) {
   return hasNodeIgnoreComment(node);
 }
 
+function hasAddedLine(arg) {
+  switch (arg.type) {
+    case "concat":
+      if (arg.parts.length > 0) {
+        return hasAddedLine(arg.parts[arg.parts.length - 1]);
+      }
+      return false;
+    case "group":
+      return arg.addedLine;
+    default:
+      return false;
+  }
+}
+
 module.exports = {
   classChildNeedsASIProtection,
   classPropMayCauseASIProblems,
@@ -1512,6 +1526,7 @@ module.exports = {
   getLeftSidePathName,
   getParentExportDeclaration,
   getTypeScriptMappedTypeModifier,
+  hasAddedLine,
   hasDanglingComments,
   hasFlowAnnotationComment,
   hasFlowShorthandAnnotationComment,

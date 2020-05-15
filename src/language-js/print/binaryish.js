@@ -18,6 +18,7 @@ const {
 
 let uid = 0;
 function printBinaryishExpression(path, options, print) {
+  const parenLine = options.parenSpacing ? line : softline;
   const n = path.getValue();
   const parent = path.getParentNode();
   const parentParent = path.getParentNode(1);
@@ -67,7 +68,7 @@ function printBinaryishExpression(path, options, print) {
       parent.type === "OptionalMemberExpression") &&
       !parent.computed)
   ) {
-    return group(concat([indent(concat([softline, concat(parts)])), softline]));
+    return group(concat(["(", indent(concat([parenLine, concat(parts)])), parenLine, ")"]));
   }
 
   // Avoid indenting sub-expressions in some cases where the first sub-expression is already

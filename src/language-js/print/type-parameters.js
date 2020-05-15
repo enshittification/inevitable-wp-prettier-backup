@@ -21,6 +21,8 @@ function getTypeParametersGroupId(node) {
 }
 
 function printTypeParameters(path, options, print, paramsKey) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const n = path.getValue();
 
   if (!n[paramsKey]) {
@@ -49,8 +51,10 @@ function printTypeParameters(path, options, print, paramsKey) {
   if (shouldInline) {
     return concat([
       "<",
+      parenSpace,
       join(", ", path.map(print, paramsKey)),
       printDanglingCommentsForInline(path, options),
+      parenSpace,
       ">",
     ]);
   }
@@ -60,7 +64,7 @@ function printTypeParameters(path, options, print, paramsKey) {
       "<",
       indent(
         concat([
-          softline,
+          parenLine,
           join(concat([",", line]), path.map(print, paramsKey)),
         ])
       ),
@@ -71,7 +75,7 @@ function printTypeParameters(path, options, print, paramsKey) {
           ? ","
           : ""
       ),
-      softline,
+      parenLine,
       ">",
     ]),
     { id: getTypeParametersGroupId(n) }
