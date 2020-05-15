@@ -14,6 +14,7 @@ const { printTypeAnnotation } = require("./type-annotation");
 /** @typedef {import("../../document").Doc} Doc */
 
 function printArray(path, options, print) {
+  const parenLine = options.parenSpacing ? line : softline;
   const n = path.getValue();
   /** @type{Doc[]} */
   const parts = [];
@@ -80,7 +81,7 @@ function printArray(path, options, print) {
           openBracket,
           indent(
             concat([
-              softline,
+              parenLine,
               printArrayItems(path, options, "elements", print),
             ])
           ),
@@ -93,7 +94,7 @@ function printArray(path, options, print) {
               : ""
           ),
           printDanglingComments(path, options, /* sameIndent */ true),
-          softline,
+          parenLine,
           closeBracket,
         ]),
         { shouldBreak }

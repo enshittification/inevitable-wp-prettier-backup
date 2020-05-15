@@ -46,6 +46,7 @@ const {
   getCallArguments,
   getParentExportDeclaration,
   getTypeScriptMappedTypeModifier,
+  hasAddedLine,
   hasDanglingComments,
   hasFlowShorthandAnnotationComment,
   hasLeadingOwnLineComment,
@@ -130,6 +131,7 @@ function genericPrint(path, options, printPath, args) {
   const node = path.getValue();
   let needsParens = false;
   const linesWithoutParens = printPathNoParens(path, options, printPath, args);
+  const parenSpace = options.parenSpacing ? " " : "";
 
   if (!node || isEmpty(linesWithoutParens)) {
     return linesWithoutParens;
@@ -211,7 +213,7 @@ function genericPrint(path, options, printPath, args) {
 
   const parts = [];
   if (needsParens) {
-    parts.unshift("(");
+    parts.unshift("(", parenSpace);
   }
 
   parts.push(linesWithoutParens);
@@ -225,7 +227,7 @@ function genericPrint(path, options, printPath, args) {
       node.trailingComments[0].printed = true;
     }
 
-    parts.push(")");
+    parts.push(hasAddedLine(linesWithoutParens) ? "" : parenSpace, ")");
   }
 
   if (decorators.length > 0) {
@@ -237,6 +239,8 @@ function genericPrint(path, options, printPath, args) {
 function printPathNoParens(path, options, print, args) {
   const n = path.getValue();
   const semi = options.semi ? ";" : "";
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
 
   if (!n) {
     return "";
@@ -342,7 +346,13 @@ function printPathNoParens(path, options, print, args) {
     case "ParenthesizedExpression": {
       const shouldHug = !n.expression.comments;
       if (shouldHug) {
-        return concat(["(", path.call(print, "expression"), ")"]);
+        return concat([
+          "(",
+          parenSpace,
+          path.call(print, "expression"),
+          parenSpace,
+          ")",
+        ]);
       }
       return group(
         concat([
@@ -649,7 +659,16 @@ function printPathNoParens(path, options, print, args) {
     case "UnaryExpression":
       parts.push(n.operator);
 
-      if (/[a-z]$/.test(n.operator)) {
+      if (
+        /[a-z]$/.test(n.operator) ||
+        (options.parenSpacing &&
+          n.operator === "!" &&
+          !(
+            n.argument &&
+            n.argument.type === "UnaryExpression" &&
+            n.argument.operator === "!"
+          ))
+      ) {
         parts.push(" ");
       }
 
@@ -680,7 +699,7 @@ function printPathNoParens(path, options, print, args) {
     case "ConditionalExpression":
       return printTernaryOperator(path, options, print, {
         beforeParts: () => [path.call(print, "test")],
-        afterParts: (breakClosingParen) => [breakClosingParen ? softline : ""],
+        afterParts: (breakClosingParen) => [breakClosingParen ? parenLine : ""],
         shouldCheckJsx: true,
         conditionalNodeType: "ConditionalExpression",
         consequentNodePropertyName: "consequent",
@@ -759,7 +778,9 @@ function printPathNoParens(path, options, print, args) {
       return group(
         concat([
           "with (",
+          parenSpace,
           path.call(print, "object"),
+          parenSpace,
           ")",
           adjustClause(n.body, path.call(print, "body")),
         ])
@@ -771,8 +792,8 @@ function printPathNoParens(path, options, print, args) {
           "if (",
           group(
             concat([
-              indent(concat([softline, path.call(print, "test")])),
-              softline,
+              indent(concat([parenLine, path.call(print, "test")])),
+              parenLine,
             ])
           ),
           ")",
@@ -840,7 +861,7 @@ function printPathNoParens(path, options, print, args) {
               concat([
                 indent(
                   concat([
-                    softline,
+                    parenLine,
                     path.call(print, "init"),
                     ";",
                     line,
@@ -850,7 +871,7 @@ function printPathNoParens(path, options, print, args) {
                     path.call(print, "update"),
                   ])
                 ),
-                softline,
+                parenLine,
               ])
             ),
             ")",
@@ -865,8 +886,8 @@ function printPathNoParens(path, options, print, args) {
           "while (",
           group(
             concat([
-              indent(concat([softline, path.call(print, "test")])),
-              softline,
+              indent(concat([parenLine, path.call(print, "test")])),
+              parenLine,
             ])
           ),
           ")",
@@ -877,9 +898,11 @@ function printPathNoParens(path, options, print, args) {
       return group(
         concat([
           "for (",
+          parenSpace,
           path.call(print, "left"),
           " in ",
           path.call(print, "right"),
+          parenSpace,
           ")",
           adjustClause(n.body, path.call(print, "body")),
         ])
@@ -891,9 +914,11 @@ function printPathNoParens(path, options, print, args) {
           "for",
           n.await ? " await" : "",
           " (",
+          parenSpace,
           path.call(print, "left"),
           " of ",
           path.call(print, "right"),
+          parenSpace,
           ")",
           adjustClause(n.body, path.call(print, "body")),
         ])
@@ -914,8 +939,8 @@ function printPathNoParens(path, options, print, args) {
       parts.push(
         group(
           concat([
-            indent(concat([softline, path.call(print, "test")])),
-            softline,
+            indent(concat([parenLine, path.call(print, "test")])),
+            parenLine,
           ])
         ),
         ")",
@@ -982,8 +1007,8 @@ function printPathNoParens(path, options, print, args) {
         return concat([
           "catch ",
           hasComments
-            ? concat(["(", indent(concat([softline, param])), softline, ") "])
-            : concat(["(", param, ") "]),
+            ? concat(["(", indent(concat([parenLine, param])), parenLine, ") "])
+            : concat(["(", parenSpace, param, parenSpace, ") "]),
           path.call(print, "body"),
         ]);
       }
@@ -995,8 +1020,8 @@ function printPathNoParens(path, options, print, args) {
         group(
           concat([
             "switch (",
-            indent(concat([softline, path.call(print, "discriminant")])),
-            softline,
+            indent(concat([parenLine, path.call(print, "discriminant")])),
+            parenLine,
             ")",
           ])
         ),
@@ -1229,13 +1254,13 @@ function printPathNoParens(path, options, print, args) {
           "[",
           indent(
             concat([
-              softline,
+              parenLine,
               printArrayItems(path, options, typesField, print),
             ])
           ),
           ifBreak(shouldPrintComma(options, "all") && !hasRest ? "," : ""),
           comments.printDanglingComments(path, options, /* sameIndent */ true),
-          softline,
+          parenLine,
           "]",
         ])
       );
@@ -1446,7 +1471,7 @@ function printPathNoParens(path, options, print, args) {
       }
 
       if (needsParens) {
-        parts.push("(");
+        parts.push("(", parenSpace);
       }
 
       parts.push(
@@ -1470,7 +1495,7 @@ function printPathNoParens(path, options, print, args) {
         );
       }
       if (needsParens) {
-        parts.push(")");
+        parts.push(parenSpace, ")");
       }
 
       return group(concat(parts));
@@ -1746,7 +1771,7 @@ function printPathNoParens(path, options, print, args) {
     case "TypeParameter": {
       const parent = path.getParentNode();
       if (parent.type === "TSMappedType") {
-        parts.push("[", path.call(print, "name"));
+        parts.push("[", parenSpace, path.call(print, "name"));
         if (n.constraint) {
           parts.push(" in ", path.call(print, "constraint"));
         }
@@ -1758,7 +1783,7 @@ function printPathNoParens(path, options, print, args) {
             })
           );
         }
-        parts.push("]");
+        parts.push(parenSpace, "]");
         return concat(parts);
       }
 
@@ -1953,7 +1978,7 @@ function printPathNoParens(path, options, print, args) {
         n.readonly ? "readonly " : "",
         n.declare ? "declare " : "",
         "[",
-        n.parameters ? parametersGroup : "",
+        n.parameters ? concat([parenSpace, parametersGroup, parenSpace]) : "",
         n.typeAnnotation ? "]: " : "]",
         n.typeAnnotation ? path.call(print, "typeAnnotation") : "",
         parent.type === "ClassBody" ? semi : "",
@@ -1987,7 +2012,9 @@ function printPathNoParens(path, options, print, args) {
       return concat([
         path.call(print, "objectType"),
         "[",
+        parenSpace,
         path.call(print, "indexType"),
+        parenSpace,
         "]",
       ]);
     case "TSConstructSignatureDeclaration":

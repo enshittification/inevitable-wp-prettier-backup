@@ -9,6 +9,7 @@ const {
 const {
   getFunctionParameters,
   iterateFunctionParametersPath,
+  hasAddedLine,
   hasLeadingComment,
   hasTrailingComment,
   isFunctionCompositionArgs,
@@ -36,6 +37,8 @@ const {
 } = require("../../document");
 
 function printCallArguments(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
   const isDynamicImport = node.type === "ImportExpression";
 
@@ -59,9 +62,11 @@ function printCallArguments(path, options, print) {
   ) {
     return concat([
       "(",
+      parenSpace,
       path.call(print, "arguments", 0),
       ", ",
       path.call(print, "arguments", 1),
+      parenSpace,
       ")",
     ]);
   }
@@ -129,13 +134,13 @@ function printCallArguments(path, options, print) {
       ? ","
       : "";
 
-  function allArgsBrokenOut() {
+  function allArgsBrokenOut(lastArgAddedLine) {
     return group(
       concat([
         "(",
-        indent(concat([line, concat(printedArguments)])),
+        indent(concat([parenLine, concat(printedArguments)])),
         maybeTrailingComma,
-        line,
+        lastArgAddedLine ? "" : parenLine,
         ")",
       ]),
       { shouldBreak: true }
@@ -161,6 +166,7 @@ function printCallArguments(path, options, print) {
 
     // We want to print the last argument with a special flag
     let printedExpanded = [];
+    let lastArgAddedLine = false;
     iterateCallArgumentsPath(path, (argPath, i) => {
       if (shouldGroupFirst && i === 0) {
         printedExpanded = [
@@ -173,15 +179,23 @@ function printCallArguments(path, options, print) {
         ].concat(printedArguments.slice(1));
       }
       if (shouldGroupLast && i === args.length - 1) {
-        printedExpanded = printedArguments
-          .slice(0, -1)
-          .concat(argPath.call((p) => print(p, { expandLastArg: true })));
+        const printedLastArg = argPath.call((p) =>
+          print(p, { expandLastArg: true })
+        );
+        lastArgAddedLine = hasAddedLine(printedLastArg);
+        printedExpanded = printedArguments.slice(0, -1).concat(printedLastArg);
       }
     });
 
     const somePrintedArgumentsWillBreak = printedArguments.some(willBreak);
 
-    const simpleConcat = concat(["(", concat(printedExpanded), ")"]);
+    const simpleConcat = concat([
+      "(",
+      parenSpace,
+      concat(printedExpanded),
+      lastArgAddedLine ? "" : parenSpace,
+      ")",
+    ]);
 
     return concat([
       somePrintedArgumentsWillBreak ? breakParent : "",
@@ -191,20 +205,24 @@ function printCallArguments(path, options, print) {
           !node.typeArguments &&
           !node.typeParameters
             ? simpleConcat
-            : ifBreak(allArgsBrokenOut(), simpleConcat),
+            : ifBreak(allArgsBrokenOut(lastArgAddedLine), simpleConcat),
           shouldGroupFirst
             ? concat([
                 "(",
+                parenSpace,
                 group(printedExpanded[0], { shouldBreak: true }),
                 concat(printedExpanded.slice(1)),
+                parenSpace,
                 ")",
               ])
             : concat([
                 "(",
+                parenSpace,
                 concat(printedArguments.slice(0, -1)),
                 group(getLast(printedExpanded), {
                   shouldBreak: true,
                 }),
+                lastArgAddedLine ? "" : parenSpace,
                 ")",
               ]),
           allArgsBrokenOut(),
@@ -216,9 +234,9 @@ function printCallArguments(path, options, print) {
 
   const contents = concat([
     "(",
-    indent(concat([softline, concat(printedArguments)])),
+    indent(concat([parenLine, concat(printedArguments)])),
     ifBreak(maybeTrailingComma),
-    softline,
+    parenLine,
     ")",
   ]);
   if (isLongCurriedCallExpression(path)) {

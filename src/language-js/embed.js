@@ -56,11 +56,11 @@ function embed(path, print, textToDoc, options) {
   }
 
   if (language === "css") {
-    return formatCss(path, print, textToDoc);
+    return formatCss(path, print, textToDoc, options);
   }
 
   if (language === "graphql") {
-    return formatGraphql(path, print, textToDoc);
+    return formatGraphql(path, print, textToDoc, options);
   }
 
   if (language === "html" || language === "angular") {

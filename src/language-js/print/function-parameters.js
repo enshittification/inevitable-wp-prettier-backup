@@ -32,6 +32,8 @@ function printFunctionParameters(
 ) {
   const functionNode = path.getValue();
   const parameters = getFunctionParameters(functionNode);
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const typeParams = printTypeParams
     ? printFunctionTypeParameters(path, options, print)
     : "";
@@ -101,7 +103,9 @@ function printFunctionParameters(
       concat([
         removeLines(typeParams),
         "(",
+        parenSpace,
         concat(printed.map(removeLines)),
+        parenSpace,
         ")",
       ])
     );
@@ -116,12 +120,26 @@ function printFunctionParameters(
   // }) {}
   const hasNotParameterDecorator = parameters.every((node) => !node.decorators);
   if (shouldHugParameters && hasNotParameterDecorator) {
-    return concat([typeParams, "(", concat(printed), ")"]);
+    return concat([
+      typeParams,
+      "(",
+      parenSpace,
+      concat(printed),
+      parenSpace,
+      ")",
+    ]);
   }
 
   // don't break in specs, eg; `it("should maintain parens around done even when long", (done) => {})`
   if (isParametersInTestCall) {
-    return concat([typeParams, "(", concat(printed), ")"]);
+    return concat([
+      typeParams,
+      "(",
+      parenSpace,
+      concat(printed),
+      parenSpace,
+      ")",
+    ]);
   }
 
   const isFlowShorthandWithOneArg =
@@ -144,7 +162,7 @@ function printFunctionParameters(
 
   if (isFlowShorthandWithOneArg) {
     if (options.arrowParens === "always") {
-      return concat(["(", concat(printed), ")"]);
+      return concat(["(", parenSpace, concat(printed), parenSpace, ")"]);
     }
     return concat(printed);
   }
@@ -152,13 +170,13 @@ function printFunctionParameters(
   return concat([
     typeParams,
     "(",
-    indent(concat([softline, concat(printed)])),
+    indent(concat([parenLine, concat(printed)])),
     ifBreak(
       !hasRestParameter(functionNode) && shouldPrintComma(options, "all")
         ? ","
         : ""
     ),
-    softline,
+    parenLine,
     ")",
   ]);
 }

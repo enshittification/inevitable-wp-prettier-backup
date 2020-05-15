@@ -140,6 +140,7 @@ function conditionalExpressionChainContainsJSX(node) {
  * @returns {Doc}
  */
 function printTernaryOperator(path, options, print, operatorOptions) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const node = path.getValue();
   const consequentNode = node[operatorOptions.consequentNodePropertyName];
   const alternateNode = node[operatorOptions.alternateNodePropertyName];
@@ -222,11 +223,11 @@ function printTernaryOperator(path, options, print, operatorOptions) {
       line,
       "? ",
       consequentNode.type === operatorOptions.conditionalNodeType
-        ? ifBreak("", "(")
+        ? ifBreak("", concat(["(", parenSpace]))
         : "",
       align(2, path.call(print, operatorOptions.consequentNodePropertyName)),
       consequentNode.type === operatorOptions.conditionalNodeType
-        ? ifBreak("", ")")
+        ? ifBreak("", concat([parenSpace, ")"]))
         : "",
       line,
       ": ",
@@ -264,9 +265,9 @@ function printTernaryOperator(path, options, print, operatorOptions) {
         locEnd(comment)
       )
   );
-  const maybeGroup = (doc) =>
+  const maybeGroup = (doc, options) =>
     parent === firstNonConditionalParent
-      ? group(doc, { shouldBreak })
+      ? group(doc, { ...options, shouldBreak })
       : shouldBreak
       ? concat([doc, breakParent])
       : doc;
@@ -304,7 +305,8 @@ function printTernaryOperator(path, options, print, operatorOptions) {
         forceNoIndent ? concat(parts) : indent(concat(parts)),
         operatorOptions.afterParts(breakClosingParen)
       )
-    )
+    ),
+    { addedLine: breakClosingParen }
   );
 
   return isParentTest

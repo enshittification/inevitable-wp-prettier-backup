@@ -18,6 +18,7 @@ const printCallArguments = require("./call-arguments");
 const { printOptionalToken, printFunctionTypeParameters } = require("./misc");
 
 function printCallExpression(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const n = path.getValue();
   const isNew = n.type === "NewExpression";
   const isDynamicImport = n.type === "ImportExpression";
@@ -50,7 +51,7 @@ function printCallExpression(path, options, print) {
       path.call(print, "callee"),
       optional,
       printFunctionTypeParameters(path, options, print),
-      concat(["(", join(", ", printed), ")"]),
+      concat(["(", parenSpace, join(", ", printed), parenSpace, ")"]),
     ]);
   }
 

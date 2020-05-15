@@ -5,6 +5,7 @@ const {
   builders: {
     concat,
     join,
+    line,
     hardline,
     softline,
     group,
@@ -23,6 +24,8 @@ const {
 } = require("../utils");
 
 function printTemplateLiteral(path, print, options) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
   const isTemplateLiteral = node.type === "TemplateLiteral";
 
@@ -89,8 +92,12 @@ function printTemplateLiteral(path, print, options) {
           expression.type === "TSAsExpression" ||
           isBinaryish(expression)
         ) {
-          printed = concat([indent(concat([softline, printed])), softline]);
+          printed = concat([indent(concat([parenLine, printed])), parenLine]);
+        } else {
+          printed = concat([parenSpace, printed, parenSpace]);
         }
+      } else {
+        printed = concat([parenSpace, printed, parenSpace]);
       }
 
       const aligned =
@@ -115,6 +122,7 @@ function printJestEachTemplateLiteral(path, options, print) {
    * ${2} | ${1} | ${3}
    */
   const node = path.getNode();
+  const parenSpace = options.parenSpacing ? " " : "";
   const headerNames = node.quasis[0].value.raw.trim().split(/\s*\|\s*/);
   if (
     headerNames.length > 1 ||
@@ -127,11 +135,13 @@ function printJestEachTemplateLiteral(path, options, print) {
     const stringifiedExpressions = expressions.map(
       (doc) =>
         "${" +
+        parenSpace +
         printDocToString(doc, {
           ...options,
           printWidth: Infinity,
           endOfLine: "lf",
         }).formatted +
+        parenSpace +
         "}"
     );
 
@@ -198,18 +208,20 @@ function printJestEachTemplateLiteral(path, options, print) {
   }
 }
 
-function printTemplateExpression(path, print) {
+function printTemplateExpression(path, print, options) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
   let printed = print(path);
   if (node.comments && node.comments.length) {
-    printed = group(concat([indent(concat([softline, printed])), softline]));
+    printed = group(concat([indent(concat([parenLine, printed])), parenLine]));
   }
-  return concat(["${", printed, lineSuffixBoundary, "}"]);
+  return concat(["${", parenSpace, printed, lineSuffixBoundary, parenSpace, "}"]);
 }
 
-function printTemplateExpressions(path, print) {
+function printTemplateExpressions(path, print, options) {
   return path.map(
-    (path) => printTemplateExpression(path, print),
+    (path) => printTemplateExpression(path, print, options),
     "expressions"
   );
 }

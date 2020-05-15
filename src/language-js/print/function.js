@@ -11,6 +11,7 @@ const {
 } = require("../../document");
 const {
   getFunctionParameters,
+  hasAddedLine,
   hasDanglingComments,
   hasLeadingOwnLineComment,
   isFlowAnnotationComment,
@@ -113,6 +114,8 @@ function printMethodInternal(path, options, print) {
 }
 
 function printArrowFunctionExpression(path, options, print, args) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const n = path.getValue();
   const parts = [];
 
@@ -176,7 +179,9 @@ function printArrowFunctionExpression(path, options, print, args) {
       n.body.type === "ArrowFunctionExpression" ||
       n.body.type === "DoExpression")
   ) {
-    return group(concat([concat(parts), " ", body]));
+    return group(concat([concat(parts), " ", body]), {
+      addedLine: hasAddedLine(body), // pass the option from a nested => arrow => function
+    });
   }
 
   // We handle sequence expressions as the body of arrows specially,
@@ -185,16 +190,19 @@ function printArrowFunctionExpression(path, options, print, args) {
     return group(
       concat([
         concat(parts),
-        group(concat([" (", indent(concat([softline, body])), softline, ")"])),
+        group(concat([" (", indent(concat([parenLine, body])), parenLine, ")"])),
       ])
     );
   }
 
   // if the arrow function is expanded as last argument, we are adding a
-  // level of indentation and need to add a softline to align the closing )
+  // level of indentation and need to add a (soft) line to align the closing )
   // with the opening (, or if it's inside a JSXExpression (e.g. an attribute)
   // we should align the expression's closing } with the line with the opening {.
-  const shouldAddSoftLine =
+  // This means that the (soft) line is sometimes added, sometimes not. Add this fact as
+  // an `addedLine` opt to the returned `group`. It will be used by code that takes care
+  // of adding a space before the closing paren when the `paren-spacing` option is on.
+  const shouldAddLine =
     ((args && args.expandLastArg) ||
       path.getParentNode().type === "JSXExpressionContainer") &&
     !(n.comments && n.comments.length);
@@ -217,17 +225,18 @@ function printArrowFunctionExpression(path, options, print, args) {
           indent(
             concat([
               line,
-              shouldAddParens ? ifBreak("", "(") : "",
+              shouldAddParens ? ifBreak("", concat(["(", parenSpace])) : "",
               body,
-              shouldAddParens ? ifBreak("", ")") : "",
+              shouldAddParens ? ifBreak("", concat([parenSpace, ")"])) : "",
             ])
           ),
-          shouldAddSoftLine
-            ? concat([ifBreak(printTrailingComma ? "," : ""), softline])
+          shouldAddLine
+            ? concat([ifBreak(printTrailingComma ? "," : ""), parenLine])
             : "",
         ])
       ),
-    ])
+    ]),
+    { addedLine: shouldAddLine }
   );
 }
 
