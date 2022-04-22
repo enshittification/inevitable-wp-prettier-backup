@@ -20,6 +20,7 @@ const { printOptionalToken, printTypeAnnotation } = require("./misc.js");
 /** @typedef {import("../../document").Doc} Doc */
 
 function printArray(path, options, print) {
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
   /** @type{Doc[]} */
   const parts = [];
@@ -97,7 +98,7 @@ function printArray(path, options, print) {
         [
           openBracket,
           indent([
-            softline,
+            parenLine,
             shouldUseConciseFormatting
               ? printArrayItemsConcisely(path, options, print, trailingComma)
               : [
@@ -106,7 +107,7 @@ function printArray(path, options, print) {
                 ],
             printDanglingComments(path, options, /* sameIndent */ true),
           ]),
-          softline,
+          parenLine,
           closeBracket,
         ],
         { shouldBreak, id: groupId }

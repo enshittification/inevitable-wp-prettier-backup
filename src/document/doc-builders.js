@@ -97,6 +97,7 @@ function group(contents, opts = {}) {
     contents,
     break: Boolean(opts.shouldBreak),
     expandedStates: opts.expandedStates,
+    addedLine: !!opts.addedLine,
   };
 }
 
