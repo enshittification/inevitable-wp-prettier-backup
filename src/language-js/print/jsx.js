@@ -17,7 +17,7 @@ const {
     lineSuffixBoundary,
     join,
   },
-  utils: { willBreak },
+  utils: { hasAddedLine, willBreak },
 } = require("../../document/index.js");
 
 const { getLast, getPreferredQuote } = require("../../common/util.js");
@@ -114,7 +114,14 @@ function printJsxElementInternal(path, options, print) {
 
   const isMdxBlock = path.getParentNode().rootMarker === "mdx";
 
-  const rawJsxWhitespace = options.singleQuote ? "{' '}" : '{" "}';
+  const rawJsxWhitespace = options.parenSpacing
+    ? options.singleQuote
+      ? "{ ' ' }"
+      : '{ " " }'
+    : options.singleQuote
+    ? "{' '}"
+    : '{" "}';
+
   const jsxWhitespace = isMdxBlock
     ? " "
     : ifBreak([rawJsxWhitespace, softline], " ");
@@ -501,6 +508,8 @@ function printJsxAttribute(path, options, print) {
 }
 
 function printJsxExpressionContainer(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
 
   const shouldInline = (node, parent) =>
@@ -521,13 +530,21 @@ function printJsxExpressionContainer(path, options, print) {
           (node.type === "ConditionalExpression" || isBinaryish(node)))));
 
   if (shouldInline(node.expression, path.getParentNode(0))) {
-    return group(["{", print("expression"), lineSuffixBoundary, "}"]);
+    const printed = print("expression");
+    return group([
+      "{",
+      parenSpace,
+      printed,
+      lineSuffixBoundary,
+      hasAddedLine(printed) ? "" : parenSpace,
+      "}",
+    ]);
   }
 
   return group([
     "{",
-    indent([softline, print("expression")]),
-    softline,
+    indent([parenLine, print("expression")]),
+    parenLine,
     lineSuffixBoundary,
     "}",
   ]);
@@ -689,6 +706,8 @@ function printJsxEmptyExpression(path, options /*, print*/) {
 
 // `JSXSpreadAttribute` and `JSXSpreadChild`
 function printJsxSpreadAttribute(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
   return [
     "{",
@@ -697,11 +716,11 @@ function printJsxSpreadAttribute(path, options, print) {
         const printed = ["...", print()];
         const node = p.getValue();
         if (!hasComment(node) || !willPrintOwnComments(p)) {
-          return printed;
+          return [parenSpace, printed, parenSpace];
         }
         return [
-          indent([softline, printComments(p, printed, options)]),
-          softline,
+          indent([parenLine, printComments(p, printed, options)]),
+          parenLine,
         ];
       },
       node.type === "JSXSpreadAttribute" ? "argument" : "expression"

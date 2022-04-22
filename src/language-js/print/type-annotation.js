@@ -203,6 +203,7 @@ function printUnionType(path, options, print) {
 
 // `TSFunctionType` and `FunctionTypeAnnotation`
 function printFunctionType(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const node = path.getValue();
   const parts = [];
   // FunctionTypeAnnotation is ambiguous:
@@ -242,7 +243,7 @@ function printFunctionType(path, options, print) {
   }
 
   if (needsParens) {
-    parts.push("(");
+    parts.push("(", parenSpace);
   }
 
   const parametersDoc = printFunctionParameters(
@@ -277,7 +278,7 @@ function printFunctionType(path, options, print) {
   }
 
   if (needsParens) {
-    parts.push(")");
+    parts.push(parenSpace, ")");
   }
 
   return group(parts);
@@ -285,11 +286,12 @@ function printFunctionType(path, options, print) {
 
 // `TSTupleType` and `TupleTypeAnnotation`
 function printTupleType(path, options, print) {
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
   const typesField = node.type === "TSTupleType" ? "elementTypes" : "types";
   const types = node[typesField];
   const isNonEmptyTuple = isNonEmptyArray(types);
-  const bracketsDelimiterLine = isNonEmptyTuple ? softline : "";
+  const bracketsDelimiterLine = isNonEmptyTuple ? parenLine : "";
   return group([
     "[",
     indent([
@@ -305,10 +307,18 @@ function printTupleType(path, options, print) {
 
 // `TSIndexedAccessType`, `IndexedAccessType`, and `OptionalIndexedAccessType`
 function printIndexedAccessType(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const node = path.getValue();
   const leftDelimiter =
     node.type === "OptionalIndexedAccessType" && node.optional ? "?.[" : "[";
-  return [print("objectType"), leftDelimiter, print("indexType"), "]"];
+  return [
+    print("objectType"),
+    leftDelimiter,
+    parenSpace,
+    print("indexType"),
+    parenSpace,
+    "]",
+  ];
 }
 
 module.exports = {

@@ -29,13 +29,15 @@ const {
     ifBreak,
     breakParent,
   },
-  utils: { willBreak },
+  utils: { hasAddedLine, willBreak },
 } = require("../../document/index.js");
 
 const { ArgExpansionBailout } = require("../../common/errors.js");
 const { isConciselyPrintedArray } = require("./array.js");
 
 function printCallArguments(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
   const isDynamicImport = node.type === "ImportExpression";
 
@@ -50,7 +52,15 @@ function printCallArguments(path, options, print) {
 
   // useEffect(() => { ... }, [foo, bar, baz])
   if (isReactHookCallWithDepsArray(args)) {
-    return ["(", print(["arguments", 0]), ", ", print(["arguments", 1]), ")"];
+    return [
+      "(",
+      parenSpace,
+      print(["arguments", 0]),
+      ", ",
+      print(["arguments", 1]),
+      parenSpace,
+      ")",
+    ];
   }
 
   let anyArgEmptyLine = false;
@@ -112,6 +122,7 @@ function printCallArguments(path, options, print) {
 
     // We want to print the last argument with a special flag
     let printedExpanded = [];
+    let lastArgAddedLine = false;
 
     try {
       path.try(() => {
@@ -128,9 +139,11 @@ function printCallArguments(path, options, print) {
             ];
           }
           if (shouldGroupLast && i === lastArgIndex) {
+            const printedLastArg = print([], { expandLastArg: true });
+            lastArgAddedLine = hasAddedLine(printedLastArg);
             printedExpanded = [
               ...printedArguments.slice(0, -1),
-              print([], { expandLastArg: true }),
+              printedLastArg,
             ];
           }
         });
@@ -146,18 +159,28 @@ function printCallArguments(path, options, print) {
     return [
       printedArguments.some(willBreak) ? breakParent : "",
       conditionalGroup([
-        ["(", ...printedExpanded, ")"],
+        [
+          "(",
+          parenSpace,
+          ...printedExpanded,
+          lastArgAddedLine ? "" : parenSpace,
+          ")",
+        ],
         shouldGroupFirst
           ? [
               "(",
+              parenSpace,
               group(printedExpanded[0], { shouldBreak: true }),
               ...printedExpanded.slice(1),
+              parenSpace,
               ")",
             ]
           : [
               "(",
+              parenSpace,
               ...printedArguments.slice(0, -1),
               group(getLast(printedExpanded), { shouldBreak: true }),
+              lastArgAddedLine ? "" : parenSpace,
               ")",
             ],
         allArgsBrokenOut(),
@@ -167,9 +190,9 @@ function printCallArguments(path, options, print) {
 
   const contents = [
     "(",
-    indent([softline, ...printedArguments]),
+    indent([parenLine, ...printedArguments]),
     ifBreak(maybeTrailingComma),
-    softline,
+    parenLine,
     ")",
   ];
   if (isLongCurriedCallExpression(path)) {

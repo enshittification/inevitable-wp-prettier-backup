@@ -1,7 +1,7 @@
 "use strict";
 
 const {
-  builders: { softline, group, indent, label },
+  builders: { line, softline, group, indent, label },
 } = require("../../document/index.js");
 const {
   isNumericLiteral,
@@ -53,6 +53,8 @@ function printMemberExpression(path, options, print) {
 }
 
 function printMemberLookup(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const property = print("property");
   const node = path.getValue();
   const optional = printOptionalToken(path);
@@ -62,10 +64,10 @@ function printMemberLookup(path, options, print) {
   }
 
   if (!node.property || isNumericLiteral(node.property)) {
-    return [optional, "[", property, "]"];
+    return [optional, "[", parenSpace, property, parenSpace, "]"];
   }
 
-  return group([optional, "[", indent([softline, property]), softline, "]"]);
+  return group([optional, "[", indent([parenLine, property]), parenLine, "]"]);
 }
 
 module.exports = { printMemberExpression, printMemberLookup };

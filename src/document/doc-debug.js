@@ -150,6 +150,10 @@ function printDocToDebug(doc) {
     if (doc.type === "group") {
       const optionsParts = [];
 
+      if (doc.addedLine) {
+        optionsParts.push("trailingLine: true");
+      }
+
       if (doc.break && doc.break !== "propagated") {
         optionsParts.push("shouldBreak: true");
       }
