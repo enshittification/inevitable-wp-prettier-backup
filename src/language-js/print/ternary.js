@@ -193,6 +193,8 @@ function shouldExtraIndentForConditionalExpression(path) {
  * @returns {Doc}
  */
 function printTernary(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
   const isConditionalExpression = node.type === "ConditionalExpression";
   const consequentNodePropertyName = isConditionalExpression
@@ -281,9 +283,9 @@ function printTernary(path, options, print) {
     const part = [
       line,
       "? ",
-      consequentNode.type === node.type ? ifBreak("", "(") : "",
+      consequentNode.type === node.type ? ifBreak("", ["(", parenSpace]) : "",
       align(2, print(consequentNodePropertyName)),
-      consequentNode.type === node.type ? ifBreak("", ")") : "",
+      consequentNode.type === node.type ? ifBreak("", [parenSpace,")"]) : "",
       line,
       ": ",
       alternateNode.type === node.type
@@ -320,9 +322,9 @@ function printTernary(path, options, print) {
         locEnd(comment)
       )
   );
-  const maybeGroup = (doc) =>
+  const maybeGroup = (doc, options) =>
     parent === firstNonConditionalParent
-      ? group(doc, { shouldBreak })
+      ? group(doc, { ...options, shouldBreak })
       : shouldBreak
       ? [doc, breakParent]
       : doc;
@@ -339,14 +341,16 @@ function printTernary(path, options, print) {
     !parent.computed;
 
   const shouldExtraIndent = shouldExtraIndentForConditionalExpression(path);
+  const addedLine = isConditionalExpression && breakClosingParen && !shouldExtraIndent;
 
-  const result = maybeGroup([
-    printTernaryTest(path, options, print),
-    forceNoIndent ? parts : indent(parts),
-    isConditionalExpression && breakClosingParen && !shouldExtraIndent
-      ? softline
-      : "",
-  ]);
+  const result = maybeGroup(
+    [
+      printTernaryTest(path, options, print),
+      forceNoIndent ? parts : indent(parts),
+      addedLine ? parenLine : "",
+    ],
+    { addedLine }
+  );
 
   return isParentTest || shouldExtraIndent
     ? group([indent([softline, result]), softline])

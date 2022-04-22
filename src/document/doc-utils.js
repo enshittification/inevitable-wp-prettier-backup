@@ -412,6 +412,22 @@ function canBreak(doc) {
   return findInDoc(doc, canBreakFn, false);
 }
 
+function hasAddedLine(doc) {
+  if (isConcat(doc)) {
+    const parts = getDocParts(doc);
+    if (parts.length > 0) {
+      return hasAddedLine(parts[parts.length - 1]);
+    }
+    return false;
+  }
+  
+  if (doc.type === "group") {
+    return doc.addedLine;
+  }
+
+  return false;
+}
+
 module.exports = {
   isConcat,
   getDocParts,
@@ -428,4 +444,5 @@ module.exports = {
   replaceTextEndOfLine,
   replaceEndOfLine,
   canBreak,
+  hasAddedLine,
 };

@@ -7,7 +7,7 @@ const {
 } = require("../../document/index.js");
 const { printTemplateExpressions } = require("../print/template-literal.js");
 
-function format(path, print, textToDoc) {
+function format(path, print, textToDoc, options) {
   const node = path.getValue();
 
   // Get full template literal with expressions replaced by placeholders
@@ -29,7 +29,7 @@ function format(path, print, textToDoc) {
     { parser: "scss" },
     { stripTrailingHardline: true }
   );
-  const expressionDocs = printTemplateExpressions(path, print);
+  const expressionDocs = printTemplateExpressions(path, print, options);
   return transformCssDoc(doc, node, expressionDocs);
 }
 

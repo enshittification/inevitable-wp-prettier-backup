@@ -53,6 +53,7 @@ const {
 } = require("./type-annotation.js");
 
 function printTypescript(path, options, print) {
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
 
   // TypeScript nodes always starts with `TS`
@@ -85,8 +86,8 @@ function printTypescript(path, options, print) {
 
       const exprContents = [
         ifBreak("("),
-        indent([softline, print("expression")]),
-        softline,
+        indent([parenLine, print("expression")]),
+        parenLine,
         ifBreak(")"),
       ];
 
@@ -221,11 +222,11 @@ function printTypescript(path, options, print) {
 
       const parametersGroup = group([
         indent([
-          softline,
+          parenLine,
           join([", ", softline], path.map(print, "parameters")),
         ]),
         trailingComma,
-        softline,
+        parenLine,
       ]);
 
       return [

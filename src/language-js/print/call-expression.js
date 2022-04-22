@@ -22,6 +22,7 @@ const {
 } = require("./misc.js");
 
 function printCallExpression(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const node = path.getValue();
   const parentNode = path.getParentNode();
   const isNew = node.type === "NewExpression";
@@ -53,7 +54,9 @@ function printCallExpression(path, options, print) {
       optional,
       printFunctionTypeParameters(path, options, print),
       "(",
+      parenSpace,
       join(", ", printed),
+      parenSpace,
       ")",
     ];
   }

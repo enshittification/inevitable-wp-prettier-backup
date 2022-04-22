@@ -151,6 +151,10 @@ exports[`API getSupportInfo() 1`] = `
       "default": false,
       "type": "boolean",
     },
+    "parenSpacing": {
+      "default": false,
+      "type": "boolean",
+    },
     "parser": {
       "choices": [
         "flow",
@@ -928,6 +932,15 @@ exports[`CLI --support-info (stdout) 1`] = `
       "name": "jsxSingleQuote",
       "pluginDefaults": {},
       "since": "1.15.0",
+      "type": "boolean"
+    },
+    {
+      "category": "Common",
+      "default": false,
+      "description": "Print spaces between parens, WordPress style.",
+      "name": "parenSpacing",
+      "pluginDefaults": {},
+      "since": "0.0.0",
       "type": "boolean"
     },
     {

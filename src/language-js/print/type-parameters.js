@@ -21,6 +21,8 @@ const { isArrowFunctionVariableDeclarator } = require("./assignment.js");
 const getTypeParametersGroupId = createGroupIdMapper("typeParameters");
 
 function printTypeParameters(path, options, print, paramsKey) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
 
   if (!node[paramsKey]) {
@@ -55,8 +57,10 @@ function printTypeParameters(path, options, print, paramsKey) {
   if (shouldInline) {
     return [
       "<",
+      parenSpace,
       join(", ", path.map(print, paramsKey)),
       printDanglingCommentsForInline(path, options),
+      parenSpace,
       ">",
     ];
   }
@@ -79,9 +83,9 @@ function printTypeParameters(path, options, print, paramsKey) {
   return group(
     [
       "<",
-      indent([softline, join([",", line], path.map(print, paramsKey))]),
+      indent([parenLine, join([",", line], path.map(print, paramsKey))]),
       trailingComma,
-      softline,
+      parenLine,
       ">",
     ],
     { id: getTypeParametersGroupId(node) }
@@ -106,6 +110,7 @@ function printDanglingCommentsForInline(path, options) {
 }
 
 function printTypeParameter(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const node = path.getValue();
   const parts = [node.type === "TSTypeParameter" && node.const ? "const " : ""];
   const parent = path.getParentNode();
@@ -116,7 +121,7 @@ function printTypeParameter(path, options, print) {
         " "
       );
     }
-    parts.push("[", print("name"));
+    parts.push("[", parenSpace, print("name"));
     if (node.constraint) {
       parts.push(" in ", print("constraint"));
     }
@@ -126,7 +131,7 @@ function printTypeParameter(path, options, print) {
         path.callParent(() => print("nameType"))
       );
     }
-    parts.push("]");
+    parts.push(parenSpace, "]");
     return parts;
   }
 

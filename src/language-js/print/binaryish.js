@@ -23,6 +23,7 @@ const {
 
 let uid = 0;
 function printBinaryishExpression(path, options, print) {
+  const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
   const parent = path.getParentNode();
   const parentParent = path.getParentNode(1);
@@ -74,7 +75,7 @@ function printBinaryishExpression(path, options, print) {
     parent.type === "UnaryExpression" ||
     (isMemberExpression(parent) && !parent.computed)
   ) {
-    return group([indent([softline, ...parts]), softline]);
+    return group(["(", indent([parenLine, ...parts]), parenLine, ")"]);
   }
 
   // Avoid indenting sub-expressions in some cases where the first sub-expression is already

@@ -22,7 +22,7 @@ const {
     join,
     indentIfBreak,
   },
-  utils: { removeLines, willBreak },
+  utils: { hasAddedLine, removeLines, willBreak },
 } = require("../../document/index.js");
 const { ArgExpansionBailout } = require("../../common/errors.js");
 const {
@@ -240,12 +240,14 @@ function printArrowFunctionSignature(path, options, print, args) {
 
 function printArrowChain(
   path,
+  options,
   args,
   signatures,
   shouldBreak,
   bodyDoc,
   tailNode
 ) {
+  const parenLine = options.parenSpacing ? line : softline;
   const name = path.getName();
   const parent = path.getParentNode();
   const isCallee = isCallLikeExpression(parent) && name === "callee";
@@ -263,7 +265,7 @@ function printArrowChain(
   // We handle sequence expressions as the body of arrows specially,
   // so that the required parentheses end up on their own lines.
   if (tailNode.body.type === "SequenceExpression") {
-    bodyDoc = group(["(", indent([softline, bodyDoc]), softline, ")"]);
+    bodyDoc = group(["(", indent([parenLine, bodyDoc]), parenLine, ")"]);
   }
 
   return group([
@@ -284,6 +286,8 @@ function printArrowChain(
 }
 
 function printArrowFunction(path, options, print, args) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   let node = path.getValue();
   /** @type {Doc[]} */
   const signatures = [];
@@ -321,6 +325,7 @@ function printArrowFunction(path, options, print, args) {
   if (signatures.length > 1) {
     return printArrowChain(
       path,
+      options,
       args,
       signatures,
       chainShouldBreak,
@@ -344,7 +349,9 @@ function printArrowFunction(path, options, print, args) {
       node.body.type === "ArrowFunctionExpression" ||
       node.body.type === "DoExpression")
   ) {
-    return group([...parts, " ", body]);
+    return group([...parts, " ", body], {
+      addedLine: hasAddedLine(body), // pass the option from a nested => arrow => function
+    });
   }
 
   // We handle sequence expressions as the body of arrows specially,
@@ -352,15 +359,18 @@ function printArrowFunction(path, options, print, args) {
   if (node.body.type === "SequenceExpression") {
     return group([
       ...parts,
-      group([" (", indent([softline, body]), softline, ")"]),
+      group([" (", indent([parenLine, body]), parenLine, ")"]),
     ]);
   }
 
   // if the arrow function is expanded as last argument, we are adding a
-  // level of indentation and need to add a softline to align the closing )
+  // level of indentation and need to add a (soft) line to align the closing )
   // with the opening (, or if it's inside a JSXExpression (e.g. an attribute)
   // we should align the expression's closing } with the line with the opening {.
-  const shouldAddSoftLine =
+  // This means that the (soft) line is sometimes added, sometimes not. Add this fact as
+  // an `addedLine` opt to the returned `group`. It will be used by code that takes care
+  // of adding a space before the closing paren when the `paren-spacing` option is on.
+  const shouldAddLine =
     ((args && args.expandLastArg) ||
       path.getParentNode().type === "JSXExpressionContainer") &&
     !hasComment(node);
@@ -378,20 +388,23 @@ function printArrowFunction(path, options, print, args) {
       (node) => node.type === "ObjectExpression"
     );
 
-  return group([
-    ...parts,
-    group([
-      indent([
-        line,
-        shouldAddParens ? ifBreak("", "(") : "",
-        body,
-        shouldAddParens ? ifBreak("", ")") : "",
+  return group(
+    [
+      ...parts,
+      group([
+        indent([
+          line,
+          shouldAddParens ? ifBreak("", ["(", parenSpace]) : "",
+          body,
+          shouldAddParens ? ifBreak("", [parenSpace, ")"]) : "",
+        ]),
+        shouldAddLine
+          ? [ifBreak(printTrailingComma ? "," : ""), parenLine]
+          : "",
       ]),
-      shouldAddSoftLine
-        ? [ifBreak(printTrailingComma ? "," : ""), softline]
-        : "",
-    ]),
-  ]);
+    ],
+    { addedLine: shouldAddLine }
+  );
 }
 
 function canPrintParamsWithoutParens(node) {
