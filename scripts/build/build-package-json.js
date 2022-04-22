@@ -30,7 +30,7 @@ async function buildPackageJson({ file, files }) {
   ).output.file;
 
   const overrides = {
-    bin: `./${bin}`,
+    bin: { prettier: `./${bin}` },
     main: "./index.cjs",
     engines: {
       ...packageJson.engines,

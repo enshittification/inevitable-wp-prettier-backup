@@ -8,7 +8,7 @@ import {
   group,
   indent,
 } from "../../document/builders.js";
-import { replaceEndOfLine } from "../../document/utils.js";
+import { hasAddedLine, replaceEndOfLine } from "../../document/utils.js";
 import UnexpectedNodeError from "../../utils/unexpected-node-error.js";
 
 import {
@@ -85,6 +85,8 @@ import { printHtmlBinding } from "./html-binding.js";
  * @returns {Doc}
  */
 function printEstree(path, options, print, args) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const { node } = path;
 
   if (isLiteral(node)) {
@@ -121,12 +123,12 @@ function printEstree(path, options, print, args) {
         (isObjectOrRecordExpression(node.expression) ||
           isArrayOrTupleExpression(node.expression));
       if (shouldHug) {
-        return ["(", print("expression"), ")"];
+        return ["(", parenSpace, print("expression"), parenSpace, ")"];
       }
       return group([
         "(",
-        indent([softline, print("expression")]),
-        softline,
+        indent([parenLine, print("expression")]),
+        parenLine,
         ")",
       ]);
     }
@@ -297,13 +299,22 @@ function printEstree(path, options, print, args) {
     case "UnaryExpression":
       parts.push(node.operator);
 
-      if (/[a-z]$/.test(node.operator)) {
+      if (
+        /[a-z]$/.test(node.operator) ||
+        (options.parenSpacing &&
+          node.operator === "!" &&
+          !(
+            node.argument &&
+            node.argument.type === "UnaryExpression" &&
+            node.argument.operator === "!"
+          ))
+      ) {
         parts.push(" ");
       }
 
       if (hasComment(node.argument)) {
         parts.push(
-          group(["(", indent([softline, print("argument")]), softline, ")"]),
+          group(["(", indent([parenLine, print("argument")]), parenLine, ")"])
         );
       } else {
         parts.push(print("argument"));
@@ -366,7 +377,9 @@ function printEstree(path, options, print, args) {
     case "WithStatement":
       return group([
         "with (",
+        parenSpace,
         print("object"),
+        parenSpace,
         ")",
         adjustClause(node.body, print("body")),
       ]);
@@ -374,7 +387,7 @@ function printEstree(path, options, print, args) {
       const con = adjustClause(node.consequent, print("consequent"));
       const opening = group([
         "if (",
-        group([indent([softline, print("test")]), softline]),
+        group([indent([parenLine, print("test")]), parenLine]),
         ")",
         con,
       ]);
@@ -431,7 +444,7 @@ function printEstree(path, options, print, args) {
           "for (",
           group([
             indent([
-              softline,
+              parenLine,
               print("init"),
               ";",
               line,
@@ -440,7 +453,7 @@ function printEstree(path, options, print, args) {
               line,
               print("update"),
             ]),
-            softline,
+            parenLine,
           ]),
           ")",
           body,
@@ -450,16 +463,18 @@ function printEstree(path, options, print, args) {
     case "WhileStatement":
       return group([
         "while (",
-        group([indent([softline, print("test")]), softline]),
+        group([indent([parenLine, print("test")]), parenLine]),
         ")",
         adjustClause(node.body, print("body")),
       ]);
     case "ForInStatement":
       return group([
         "for (",
+        parenSpace,
         print("left"),
         " in ",
         print("right"),
+        parenSpace,
         ")",
         adjustClause(node.body, print("body")),
       ]);
@@ -469,9 +484,11 @@ function printEstree(path, options, print, args) {
         "for",
         node.await ? " await" : "",
         " (",
+        parenSpace,
         print("left"),
         " of ",
         print("right"),
+        parenSpace,
         ")",
         adjustClause(node.body, print("body")),
       ]);
@@ -488,7 +505,7 @@ function printEstree(path, options, print, args) {
       }
       parts.push(
         "while (",
-        group([indent([softline, print("test")]), softline]),
+        group([indent([parenLine, print("test")]), parenLine]),
         ")",
         semi,
       );
@@ -539,8 +556,8 @@ function printEstree(path, options, print, args) {
         return [
           "catch ",
           parameterHasComments
-            ? ["(", indent([softline, param]), softline, ") "]
-            : ["(", param, ") "],
+            ? ["(", indent([parenLine, param]), parenLine, ") "]
+            : ["(", parenSpace, param, parenSpace, ") "],
           print("body"),
         ];
       }
@@ -551,8 +568,8 @@ function printEstree(path, options, print, args) {
       return [
         group([
           "switch (",
-          indent([softline, print("discriminant")]),
-          softline,
+          indent([parenLine, print("discriminant")]),
+          parenLine,
           ")",
         ]),
         " {",

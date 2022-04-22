@@ -1,5 +1,6 @@
 import {
   join,
+  line,
   softline,
   group,
   indent,
@@ -58,6 +59,7 @@ import { printImportKind } from "./module.js";
 import { printTypescriptMappedType } from "./mapped-type.js";
 
 function printTypescript(path, options, print) {
+  const parenLine = options.parenSpacing ? line : softline;
   const { node } = path;
 
   // TypeScript nodes always starts with `TS`
@@ -91,8 +93,8 @@ function printTypescript(path, options, print) {
 
       const exprContents = [
         ifBreak("("),
-        indent([softline, print("expression")]),
-        softline,
+        indent([parenLine, print("expression")]),
+        parenLine,
         ifBreak(")"),
       ];
 
@@ -190,11 +192,11 @@ function printTypescript(path, options, print) {
 
       const parametersGroup = group([
         indent([
-          softline,
+          parenLine,
           join([", ", softline], path.map(print, "parameters")),
         ]),
         trailingComma,
-        softline,
+        parenLine,
       ]);
 
       const isClassMember =

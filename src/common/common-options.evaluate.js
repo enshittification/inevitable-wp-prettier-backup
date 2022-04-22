@@ -9,6 +9,13 @@ const options = {
     description: "Print spaces between brackets.",
     oppositeDescription: "Do not print spaces between brackets.",
   },
+  parenSpacing: {
+    since: "0.0.0",
+    category: CATEGORY_COMMON,
+    type: "boolean",
+    default: false,
+    description: "Print spaces between parens, WordPress style.",
+  },
   singleQuote: {
     category: CATEGORY_COMMON,
     type: "boolean",

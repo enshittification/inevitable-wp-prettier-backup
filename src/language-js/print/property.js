@@ -13,10 +13,11 @@ import { printAssignment } from "./assignment.js";
 const needsQuoteProps = new WeakMap();
 
 function printPropertyKey(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const { node } = path;
 
   if (node.computed) {
-    return ["[", print("key"), "]"];
+    return ["[", parenSpace, print("key"), parenSpace, "]"];
   }
 
   const { parent } = path;

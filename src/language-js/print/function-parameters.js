@@ -38,6 +38,8 @@ function printFunctionParameters(
   expandArg,
   printTypeParams,
 ) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const functionNode = path.node;
   const parameters = getFunctionParameters(functionNode);
   const typeParams = printTypeParams
@@ -48,6 +50,7 @@ function printFunctionParameters(
     return [
       typeParams,
       "(",
+      parenSpace,
       printDanglingComments(path, options, {
         filter: (comment) =>
           getNextNonSpaceNonCommentCharacter(
@@ -55,6 +58,7 @@ function printFunctionParameters(
             locEnd(comment),
           ) === ")",
       }),
+      parenSpace,
       ")",
     ];
   }
@@ -97,7 +101,14 @@ function printFunctionParameters(
       // Removing lines in this case leads to broken or ugly output
       throw new ArgExpansionBailout();
     }
-    return group([removeLines(typeParams), "(", removeLines(printed), ")"]);
+    return group([
+      removeLines(typeParams),
+      "(",
+      parenSpace,
+      removeLines(printed),
+      parenSpace,
+      ")",
+    ]);
   }
 
   // Single object destructuring should hug
@@ -111,12 +122,12 @@ function printFunctionParameters(
     (node) => !isNonEmptyArray(node.decorators),
   );
   if (shouldHugParameters && hasNotParameterDecorator) {
-    return [typeParams, "(", ...printed, ")"];
+    return [typeParams, "(", parenSpace, ...printed, parenSpace, ")"];
   }
 
   // don't break in specs, eg; `it("should maintain parens around done even when long", (done) => {})`
   if (isParametersInTestCall) {
-    return [typeParams, "(", ...printed, ")"];
+    return [typeParams, "(", parenSpace, ...printed, parenSpace, ")"];
   }
 
   const isFlowShorthandWithOneArg =
@@ -139,7 +150,7 @@ function printFunctionParameters(
 
   if (isFlowShorthandWithOneArg) {
     if (options.arrowParens === "always") {
-      return ["(", ...printed, ")"];
+      return ["(", parenSpace, ...printed, parenSpace, ")"];
     }
     return printed;
   }
@@ -147,13 +158,13 @@ function printFunctionParameters(
   return [
     typeParams,
     "(",
-    indent([softline, ...printed]),
+    indent([parenLine, ...printed]),
     ifBreak(
       !hasRestParameter(functionNode) && shouldPrintComma(options, "all")
         ? ","
         : "",
     ),
-    softline,
+    parenLine,
     ")",
   ];
 }

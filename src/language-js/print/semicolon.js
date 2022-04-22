@@ -69,6 +69,19 @@ function expressionNeedsASIProtection(path, options) {
       }
       break;
 
+    case "MemberExpression": {
+      // needsParens is false for binaryish expr inside member expr, but is parenthesized nevertheless
+      const { computed, object } = node;
+      if (
+        !computed &&
+        (object.type === "LogicalExpression" ||
+          object.type === "BinaryExpression")
+      ) {
+        return true;
+      }
+      break;
+    }
+  
     default:
       if (isJsxElement(node)) {
         return true;

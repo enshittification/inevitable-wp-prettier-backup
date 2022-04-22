@@ -422,6 +422,21 @@ function canBreak(doc) {
   return findInDoc(doc, canBreakFn, false);
 }
 
+function hasAddedLine(doc, where = "end") {
+  if (Array.isArray(doc)) {
+    if (doc.length > 0) {
+      return hasAddedLine(doc.at(-1), where);
+    }
+    return false;
+  }
+  
+  if (doc.type === "group") {
+    return where === "end" ? doc.trailingLine : doc.leadingLine;
+  }
+
+  return false;
+}
+
 function inheritLabel(doc, fn) {
   return doc.type === DOC_TYPE_LABEL
     ? { ...doc, contents: fn(doc.contents) }
@@ -444,4 +459,5 @@ export {
   canBreak,
   getDocType,
   inheritLabel,
+  hasAddedLine,
 };

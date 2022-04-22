@@ -147,6 +147,7 @@ function printIntersectionType(path, options, print) {
 
 // `TSUnionType` and `UnionTypeAnnotation`
 function printUnionType(path, options, print) {
+  const parenLine = options.parenSpacing ? line : softline;
   const { node } = path;
   // single-line variation
   // A | B | C
@@ -224,8 +225,8 @@ function printUnionType(path, options, print) {
 
     if (elementTypes.length > 1) {
       return group([
-        indent([ifBreak(["(", softline]), code]),
-        softline,
+        indent([ifBreak(["(", parenLine]), code]),
+        parenLine,
         ifBreak(")"),
       ]);
     }
@@ -319,11 +320,14 @@ function printFunctionType(path, options, print) {
 - `OptionalIndexedAccessType`(flow)
 */
 function printIndexedAccessType(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   return [
     print("objectType"),
     printOptionalToken(path),
     "[",
+    parenSpace,
     print("indexType"),
+    parenSpace,
     "]",
   ];
 }

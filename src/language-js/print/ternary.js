@@ -190,6 +190,8 @@ function shouldExtraIndentForConditionalExpression(path) {
  * @returns {Doc}
  */
 function printTernary(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const { node } = path;
   const isConditionalExpression = node.type === "ConditionalExpression";
   const consequentNodePropertyName = isConditionalExpression
@@ -278,9 +280,9 @@ function printTernary(path, options, print) {
     const part = [
       line,
       "? ",
-      consequentNode.type === node.type ? ifBreak("", "(") : "",
+      consequentNode.type === node.type ? ifBreak("", ["(", parenSpace]) : "",
       align(2, print(consequentNodePropertyName)),
-      consequentNode.type === node.type ? ifBreak("", ")") : "",
+      consequentNode.type === node.type ? ifBreak("", [parenSpace,")"]) : "",
       line,
       ": ",
       alternateNode.type === node.type
@@ -317,9 +319,9 @@ function printTernary(path, options, print) {
         ),
     ),
   );
-  const maybeGroup = (doc) =>
+  const maybeGroup = (doc, options) =>
     parent === firstNonConditionalParent
-      ? group(doc, { shouldBreak })
+      ? group(doc, { ...options, shouldBreak })
       : shouldBreak
       ? [doc, breakParent]
       : doc;
@@ -336,17 +338,19 @@ function printTernary(path, options, print) {
     !parent.computed;
 
   const shouldExtraIndent = shouldExtraIndentForConditionalExpression(path);
+  const trailingLine = isConditionalExpression && breakClosingParen && !shouldExtraIndent;
 
-  const result = maybeGroup([
-    printTernaryTest(path, options, print),
-    forceNoIndent ? parts : indent(parts),
-    isConditionalExpression && breakClosingParen && !shouldExtraIndent
-      ? softline
-      : "",
-  ]);
+  const result = maybeGroup(
+    [
+      printTernaryTest(path, options, print),
+      forceNoIndent ? parts : indent(parts),
+      trailingLine ? parenLine : "",
+    ],
+    { trailingLine }
+  );
 
   return isParentTest || shouldExtraIndent
-    ? group([indent([softline, result]), softline])
+    ? group([indent([parenLine, result]), parenLine], { leadingLine: true, trailingLine: true })
     : result;
 }
 

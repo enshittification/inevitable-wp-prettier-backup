@@ -5,12 +5,12 @@ import {
 } from "../print/template-literal.js";
 import { hasLanguageComment } from "./utils.js";
 
-async function printEmbedGraphQL(textToDoc, print, path /*, options*/) {
+async function printEmbedGraphQL(textToDoc, print, path, options) {
   const { node } = path;
 
   const numQuasis = node.quasis.length;
 
-  const expressionDocs = printTemplateExpressions(path, print);
+  const expressionDocs = printTemplateExpressions(path, print, options);
   const parts = [];
 
   for (let i = 0; i < numQuasis; i++) {

@@ -1,6 +1,6 @@
 import printIgnored from "../../main/print-ignored.js";
 import { line, group, indent } from "../../document/builders.js";
-import { inheritLabel } from "../../document/utils.js";
+import { hasAddedLine, inheritLabel } from "../../document/utils.js";
 import isNonEmptyArray from "../../utils/is-non-empty-array.js";
 import pathNeedsParens from "../needs-parens.js";
 import { createTypeCheckFunction } from "../utils/index.js";
@@ -61,6 +61,7 @@ const shouldPrintDirectly = createTypeCheckFunction([
  * @returns {Doc}
  */
 function print(path, options, print, args) {
+  const parenSpace = options.parenSpacing ? " " : "";
   if (path.isRoot) {
     options.__onHtmlBindingRoot?.(path.node, options);
   }
@@ -95,7 +96,7 @@ function print(path, options, print, args) {
     needsParens ? "(" : "",
     needsParens && isClassExpression && hasDecorators
       ? [indent([line, decoratorsDoc, doc]), line]
-      : [decoratorsDoc, doc],
+      : [needsParens ? parenSpace : "", decoratorsDoc, doc, needsParens && !hasAddedLine(doc) ? parenSpace : ""],
     needsParens ? ")" : "",
   ]);
 }

@@ -288,6 +288,8 @@ function printArrowFunctionBody(
   args,
   { bodyDoc, bodyComments, functionBody, shouldPutBodyOnSameLine },
 ) {
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
   const { node, parent } = path;
 
   const trailingComma =
@@ -300,25 +302,25 @@ function printArrowFunctionBody(
   const trailingSpace =
     (args.expandLastArg || parent.type === "JSXExpressionContainer") &&
     !hasComment(node)
-      ? softline
+      ? parenLine
       : "";
 
   if (shouldPutBodyOnSameLine && shouldAddParensIfNotBreak(functionBody)) {
     return [
       " ",
       group([
-        ifBreak("", "("),
-        indent([softline, bodyDoc]),
-        ifBreak("", ")"),
+        ifBreak("", ["(", parenSpace]),
+        indent([parenLine, bodyDoc]),
+        ifBreak("", [parenSpace,")"]),
         trailingComma,
         trailingSpace,
-      ]),
+      ], { trailingLine: trailingSpace !== "" }),
       bodyComments,
     ];
   }
 
   if (shouldAlwaysAddParens(functionBody)) {
-    bodyDoc = group(["(", indent([softline, bodyDoc]), softline, ")"]);
+    bodyDoc = group(["(", indent([parenLine, bodyDoc]), parenLine, ")"]);
   }
 
   return shouldPutBodyOnSameLine

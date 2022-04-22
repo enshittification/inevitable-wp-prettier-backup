@@ -14,6 +14,7 @@ import printCallArguments from "./call-arguments.js";
 import { printOptionalToken, printFunctionTypeParameters } from "./misc.js";
 
 function printCallExpression(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const { node, parent } = path;
   const isNew = node.type === "NewExpression";
   const isDynamicImport = node.type === "ImportExpression";
@@ -49,7 +50,9 @@ function printCallExpression(path, options, print) {
         optional,
         printFunctionTypeParameters(path, options, print),
         "(",
+        parenSpace,
         join(", ", printed),
+        parenSpace,
         ")",
       ];
     }

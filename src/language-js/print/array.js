@@ -49,6 +49,7 @@ function printEmptyArrayElements(path, options, openBracket, closeBracket) {
 - `TupleTypeAnnotation`(Flow)
 */
 function printArray(path, options, print) {
+  const parenLine = options.parenSpacing ? line : softline;
   const { node } = path;
   /** @type{Doc[]} */
   const parts = [];
@@ -126,7 +127,7 @@ function printArray(path, options, print) {
         [
           openBracket,
           indent([
-            softline,
+            parenLine,
             shouldUseConciseFormatting
               ? printArrayElementsConcisely(path, options, print, trailingComma)
               : [
@@ -135,7 +136,7 @@ function printArray(path, options, print) {
                 ],
             printDanglingComments(path, options),
           ]),
-          softline,
+          parenLine,
           closeBracket,
         ],
         { shouldBreak, id: groupId },
