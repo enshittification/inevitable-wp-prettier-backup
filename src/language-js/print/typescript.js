@@ -53,7 +53,6 @@ const {
 } = require("./type-annotation.js");
 
 function printTypescript(path, options, print) {
-  const parenSpace = options.parenSpacing ? " " : "";
   const parenLine = options.parenSpacing ? line : softline;
   const node = path.getValue();
 
@@ -220,11 +219,11 @@ function printTypescript(path, options, print) {
 
       const parametersGroup = group([
         indent([
-          softline,
+          parenLine,
           join([", ", softline], path.map(print, "parameters")),
         ]),
         trailingComma,
-        softline,
+        parenLine,
       ]);
 
       return [
@@ -234,7 +233,7 @@ function printTypescript(path, options, print) {
         node.readonly ? "readonly " : "",
         node.declare ? "declare " : "",
         "[",
-        node.parameters ? [parenSpace, parametersGroup, parenSpace] : "",
+        node.parameters ? parametersGroup : "",
         node.typeAnnotation ? "]: " : "]",
         node.typeAnnotation ? print("typeAnnotation") : "",
         parent.type === "ClassBody" ? semi : "",
