@@ -431,7 +431,7 @@ Default: false
 "
 `;
 
-exports[`show detailed usage with --help paren-spacing (write) 1`] = `Array []`;
+exports[`show detailed usage with --help paren-spacing (write) 1`] = `[]`;
 
 exports[`show detailed usage with --help parser (stderr) 1`] = `""`;
 
