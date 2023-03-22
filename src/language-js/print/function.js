@@ -350,7 +350,9 @@ function printArrowFunction(path, options, print, args) {
       node.body.type === "DoExpression")
   ) {
     return group([...parts, " ", body], {
-      addedLine: hasAddedLine(body), // pass the option from a nested => arrow => function
+      // pass the option from a nested => arrow => function
+      leadingLine: hasAddedLine(body, "start"),
+      trailingLine: hasAddedLine(body, "end"),
     });
   }
 
@@ -368,7 +370,7 @@ function printArrowFunction(path, options, print, args) {
   // with the opening (, or if it's inside a JSXExpression (e.g. an attribute)
   // we should align the expression's closing } with the line with the opening {.
   // This means that the (soft) line is sometimes added, sometimes not. Add this fact as
-  // an `addedLine` opt to the returned `group`. It will be used by code that takes care
+  // an `trailingLine` opt to the returned `group`. It will be used by code that takes care
   // of adding a space before the closing paren when the `paren-spacing` option is on.
   const shouldAddLine =
     ((args && args.expandLastArg) ||
@@ -403,7 +405,7 @@ function printArrowFunction(path, options, print, args) {
           : "",
       ]),
     ],
-    { addedLine: shouldAddLine }
+    { trailingLine: shouldAddLine }
   );
 }
 

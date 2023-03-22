@@ -142,7 +142,7 @@ function genericPrint(path, options, print, args) {
 
   if (isClassExpressionWithDecorators) {
     parts = [indent([line, ...parts])];
-  } else {
+  } else if (!hasAddedLine(printed, "start")) {
     parts.unshift(parenSpace);
   }
 
@@ -160,7 +160,7 @@ function genericPrint(path, options, print, args) {
 
   if (isClassExpressionWithDecorators) {
     parts.push(line);
-  } else if (!hasAddedLine(printed)) {
+  } else if (!hasAddedLine(printed, "end")) {
     parts.push(parenSpace);
   }
 

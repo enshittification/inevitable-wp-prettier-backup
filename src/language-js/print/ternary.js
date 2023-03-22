@@ -341,19 +341,19 @@ function printTernary(path, options, print) {
     !parent.computed;
 
   const shouldExtraIndent = shouldExtraIndentForConditionalExpression(path);
-  const addedLine = isConditionalExpression && breakClosingParen && !shouldExtraIndent;
+  const trailingLine = isConditionalExpression && breakClosingParen && !shouldExtraIndent;
 
   const result = maybeGroup(
     [
       printTernaryTest(path, options, print),
       forceNoIndent ? parts : indent(parts),
-      addedLine ? parenLine : "",
+      trailingLine ? parenLine : "",
     ],
-    { addedLine }
+    { trailingLine }
   );
 
   return isParentTest || shouldExtraIndent
-    ? group([indent([softline, result]), softline])
+    ? group([indent([parenLine, result]), parenLine], { leadingLine: true, trailingLine: true })
     : result;
 }
 

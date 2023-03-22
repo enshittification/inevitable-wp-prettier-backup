@@ -150,7 +150,11 @@ function printDocToDebug(doc) {
     if (doc.type === "group") {
       const optionsParts = [];
 
-      if (doc.addedLine) {
+      if (doc.leadingLine) {
+        optionsParts.push("leadingLine: true");
+      }
+
+      if (doc.trailingLine) {
         optionsParts.push("trailingLine: true");
       }
 

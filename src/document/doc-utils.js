@@ -412,17 +412,17 @@ function canBreak(doc) {
   return findInDoc(doc, canBreakFn, false);
 }
 
-function hasAddedLine(doc) {
+function hasAddedLine(doc, where = "end") {
   if (isConcat(doc)) {
     const parts = getDocParts(doc);
     if (parts.length > 0) {
-      return hasAddedLine(parts[parts.length - 1]);
+      return hasAddedLine(getLast(parts), where);
     }
     return false;
   }
   
   if (doc.type === "group") {
-    return doc.addedLine;
+    return where === "end" ? doc.trailingLine : doc.leadingLine;
   }
 
   return false;
