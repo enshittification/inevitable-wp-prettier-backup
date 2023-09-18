@@ -46,7 +46,11 @@ function printCallArguments(path, options, print) {
 
   const args = getCallArguments(node);
   if (args.length === 0) {
-    return ["(", printDanglingComments(path, options), ")"];
+    const comments = printDanglingComments(path, options);
+    if (!comments) {
+      return "()";
+    }
+    return ["(", parenSpace, comments, parenSpace , ")"];
   }
 
   // useEffect(() => { ... }, [foo, bar, baz])
