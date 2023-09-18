@@ -6,6 +6,8 @@ async function f3() {
   a = (await 1) ? 1 : 1;
 }
 
+function f4( /* comment */ ) { }
+
 (function () { }).length
 typeof (function () { });
 export default (function () { })();
