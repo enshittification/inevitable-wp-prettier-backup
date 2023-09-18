@@ -8,7 +8,6 @@ import {
   align,
   ifBreak,
 } from "../../document/builders.js";
-import pathNeedsParens from "../needs-parens.js";
 import { hasSameLocStart } from "../loc.js";
 import {
   isSimpleType,
@@ -145,8 +144,50 @@ function printIntersectionType(path, options, print) {
   );
 }
 
+// copy of `TSUnionType` and `UnionTypeAnnotation` condition from `needsParens`
+function needsParens(path) {
+  const { node, parent, key } = path;
+
+  if (node.type === "TSUnionType") {
+    if (
+      (parent.type === "TSUnionType" || parent.type === "TSIntersectionType") &&
+      parent.types.length > 1 &&
+      (!node.types || node.types.length > 1)
+    ) {
+      return true;
+    }
+
+    if (node.type === "TSInferType" && parent.type === "TSRestType") {
+      return false;
+    }
+
+    return (
+      parent.type === "TSArrayType" ||
+      parent.type === "TSOptionalType" ||
+      parent.type === "TSRestType" ||
+      (key === "objectType" && parent.type === "TSIndexedAccessType") ||
+      parent.type === "TSTypeOperator" ||
+      (parent.type === "TSTypeAnnotation" &&
+        path.grandparent.type.startsWith("TSJSDoc"))
+    );
+  }
+
+  if (node.type === "UnionTypeAnnotation") {
+    return (
+      parent.type === "ArrayTypeAnnotation" ||
+      parent.type === "NullableTypeAnnotation" ||
+      parent.type === "IntersectionTypeAnnotation" ||
+      parent.type === "UnionTypeAnnotation" ||
+      (key === "objectType" &&
+        (parent.type === "IndexedAccessType" ||
+          parent.type === "OptionalIndexedAccessType"))
+    );
+  }
+}
+
 // `TSUnionType` and `UnionTypeAnnotation`
 function printUnionType(path, options, print) {
+  const parenSpace = options.parenSpacing ? " " : "";
   const parenLine = options.parenSpacing ? line : softline;
   const { node } = path;
   // single-line variation
@@ -210,8 +251,8 @@ function printUnionType(path, options, print) {
     join([line, "| "], printed),
   ];
 
-  if (pathNeedsParens(path, options)) {
-    return group([indent(code), softline]);
+  if (needsParens(path)) {
+    return group(["(", parenSpace, indent(code), parenLine, ")"]);
   }
 
   if (parent.type === "TupleTypeAnnotation" || parent.type === "TSTupleType") {
@@ -226,8 +267,7 @@ function printUnionType(path, options, print) {
     if (elementTypes.length > 1) {
       return group([
         indent([ifBreak(["(", parenLine]), code]),
-        parenLine,
-        ifBreak(")"),
+        ifBreak([parenLine, ")"]),
       ]);
     }
   }

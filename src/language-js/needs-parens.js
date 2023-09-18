@@ -330,8 +330,8 @@ function needsParens(path, options) {
         case "OptionalCallExpression":
           // Logical and Binary expressions already got their parens if parent is CallExpression
           if (
-            !isIgnored(path) &&
             key === "callee" &&
+            !isIgnored(path) &&
             (parent.type === "CallExpression" ||
               parent.type === "OptionalCallExpression") &&
             (node.type === "LogicalExpression" ||
@@ -554,6 +554,10 @@ function needsParens(path, options) {
     // fallthrough
     case "TSUnionType":
     case "TSIntersectionType":
+      // TSUnionType already got its parens in `printUnionType`
+      if (node.type === "TSUnionType" && !isIgnored(path)) {
+        return false;
+      }
       if (
         (parent.type === "TSUnionType" ||
           parent.type === "TSIntersectionType") &&
@@ -596,6 +600,10 @@ function needsParens(path, options) {
 
     case "IntersectionTypeAnnotation":
     case "UnionTypeAnnotation":
+      // TSUnionType already got its parens in `printUnionType`
+      if (node.type === "UnionTypeAnnotation" && !isIgnored(path)) {
+        return false;
+      }
       return (
         parent.type === "ArrayTypeAnnotation" ||
         parent.type === "NullableTypeAnnotation" ||
