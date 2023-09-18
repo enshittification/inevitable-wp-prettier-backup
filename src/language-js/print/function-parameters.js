@@ -47,17 +47,23 @@ function printFunctionParameters(
     : "";
 
   if (parameters.length === 0) {
+    const comments = printDanglingComments(path, options, {
+      filter: (comment) =>
+        getNextNonSpaceNonCommentCharacter(
+          options.originalText,
+          locEnd(comment),
+        ) === ")",
+    });
+
+    if ( ! comments ) {
+      return [typeParams, "()"];
+    }
+
     return [
       typeParams,
       "(",
       parenSpace,
-      printDanglingComments(path, options, {
-        filter: (comment) =>
-          getNextNonSpaceNonCommentCharacter(
-            options.originalText,
-            locEnd(comment),
-          ) === ")",
-      }),
+      comments,
       parenSpace,
       ")",
     ];

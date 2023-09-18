@@ -199,7 +199,7 @@ function printEstree(path, options, print, args) {
           (isCallExpression(parent) && parent.callee === node) ||
           (isMemberExpression(parent) && parent.object === node)
         ) {
-          parts = [indent([softline, ...parts]), softline];
+          parts = ["(", indent([parenLine, ...parts]), parenLine, ")"];
           // avoid printing `await (await` on one line
           const parentAwaitOrBlock = path.findAncestor(
             (node) =>

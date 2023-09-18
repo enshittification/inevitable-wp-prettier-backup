@@ -91,14 +91,21 @@ function print(path, options, print, args) {
     return doc;
   }
 
-  return inheritLabel(doc, (doc) => [
-    needsSemi ? ";" : "",
-    needsParens ? "(" : "",
-    needsParens && isClassExpression && hasDecorators
-      ? [indent([line, decoratorsDoc, doc]), line]
-      : [needsParens ? parenSpace : "", decoratorsDoc, doc, needsParens && !hasAddedLine(doc) ? parenSpace : ""],
-    needsParens ? ")" : "",
-  ]);
+  return inheritLabel(doc, (doc) => {
+    const fullDoc = [decoratorsDoc, doc];
+    return [
+      needsSemi ? ";" : "",
+      needsParens ? "(" : "",
+      needsParens && isClassExpression && hasDecorators
+        ? [indent([line, fullDoc]), line]
+        : [
+            needsParens && !hasAddedLine(fullDoc, "start") ? parenSpace : "",
+            fullDoc,
+            needsParens && !hasAddedLine(fullDoc, "end") ? parenSpace : "",
+          ],
+      needsParens ? ")" : "",
+    ];
+  });
 }
 
 export default print;

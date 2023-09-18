@@ -12,7 +12,7 @@ import {
   join,
   indentIfBreak,
 } from "../../document/builders.js";
-import { removeLines, willBreak } from "../../document/utils.js";
+import { hasAddedLine, removeLines, willBreak } from "../../document/utils.js";
 import { ArgExpansionBailout } from "../../common/errors.js";
 import {
   getFunctionParameters,
@@ -140,6 +140,8 @@ function printArrowFunction(path, options, print, args = {}) {
     shouldPutBodyOnSameLine,
   });
 
+  const trailingLine = hasAddedLine(bodyDoc);
+
   return group([
     group(
       shouldIndentSignatures
@@ -154,7 +156,7 @@ function printArrowFunction(path, options, print, args = {}) {
     shouldPrintAsChain && isCallee
       ? ifBreak(softline, "", { groupId: chainGroupId })
       : "",
-  ]);
+  ], { trailingLine });
 }
 
 function printArrowFunctionSignature(path, options, print, args) {
@@ -310,12 +312,12 @@ function printArrowFunctionBody(
       " ",
       group([
         ifBreak("", ["(", parenSpace]),
-        indent([parenLine, bodyDoc]),
+        indent([softline, bodyDoc]),
         ifBreak("", [parenSpace,")"]),
         trailingComma,
         trailingSpace,
       ], { trailingLine: trailingSpace !== "" }),
-      bodyComments,
+      ...bodyComments,
     ];
   }
 
@@ -324,8 +326,8 @@ function printArrowFunctionBody(
   }
 
   return shouldPutBodyOnSameLine
-    ? [" ", bodyDoc, bodyComments]
-    : [indent([line, bodyDoc, bodyComments]), trailingComma, trailingSpace];
+    ? [" ", bodyDoc, ...bodyComments]
+    : [indent([line, bodyDoc, ...bodyComments]), trailingComma, trailingSpace];
 }
 
 export { printArrowFunction };

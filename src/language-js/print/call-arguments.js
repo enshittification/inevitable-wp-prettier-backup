@@ -88,7 +88,7 @@ function printCallArguments(path, options, print) {
 
   function allArgsBrokenOut() {
     return group(
-      ["(", indent([parenLine, ...printedArguments]), maybeTrailingComma, parenLine, ")"],
+      ["(", indent([line, ...printedArguments]), maybeTrailingComma, line, ")"],
       { shouldBreak: true },
     );
   }
@@ -166,8 +166,8 @@ function printCallArguments(path, options, print) {
     }
 
     return conditionalGroup([
-      ["(", ...headArgs, lastArg, lastArgAddedLine ? "" : parenSpace, ")"],
-      ["(", ...headArgs, group(lastArg, { shouldBreak: true }), lastArgAddedLine ? "" : parenSpace, ")"],
+      ["(", parenSpace, ...headArgs, lastArg, lastArgAddedLine ? "" : parenSpace, ")"],
+      ["(", parenSpace, ...headArgs, group(lastArg, { shouldBreak: true }), lastArgAddedLine ? "" : parenSpace, ")"],
       allArgsBrokenOut(),
     ]);
   }

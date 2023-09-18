@@ -15,7 +15,7 @@ import {
   DOC_TYPE_LABEL,
   DOC_TYPE_BREAK_PARENT,
 } from "./constants.js";
-import { literalline, join } from "./builders.js";
+import { line, literalline, join } from "./builders.js";
 import getDocType from "./utils/get-doc-type.js";
 import traverseDoc from "./utils/traverse-doc.js";
 import InvalidDocError from "./invalid-doc-error.js";
@@ -422,19 +422,29 @@ function canBreak(doc) {
   return findInDoc(doc, canBreakFn, false);
 }
 
-function hasAddedLine(doc, where = "end") {
-  if (Array.isArray(doc)) {
-    if (doc.length > 0) {
-      return hasAddedLine(doc.at(-1), where);
-    }
-    return false;
+function findNonEmpty(doc, end) {
+  if (end) {
+    doc = Array.from(doc).reverse();
   }
-  
-  if (doc.type === "group") {
-    return where === "end" ? doc.trailingLine : doc.leadingLine;
+  return doc.find(d => d !== "");
+}
+
+function hasAddedLine(doc, where = "end", level = 0) {
+  let result = false;
+  if (Array.isArray(doc)) {
+    const first = findNonEmpty(doc, where === "end");
+    if (!first) {
+      result = false;
+    } else {
+      result = hasAddedLine(first, where, level + 1);
+    }
+  } else if (doc.type === "group") {
+    result = where === "end" ? doc.trailingLine : doc.leadingLine;
+  } else if (doc === line || doc === " ") {
+    result = true;
   }
 
-  return false;
+  return result;
 }
 
 function inheritLabel(doc, fn) {

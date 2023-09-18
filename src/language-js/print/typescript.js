@@ -86,15 +86,15 @@ function printTypescript(path, options, print) {
 
       const castGroup = group([
         "<",
-        indent([softline, print("typeAnnotation")]),
-        softline,
+        indent([parenLine, print("typeAnnotation")]),
+        parenLine,
         ">",
       ]);
 
       const exprContents = [
         ifBreak("("),
-        indent([parenLine, print("expression")]),
-        parenLine,
+        indent([softline, print("expression")]),
+        softline,
         ifBreak(")"),
       ];
 
