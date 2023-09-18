@@ -314,7 +314,7 @@ function printEstree(path, options, print, args) {
 
       if (hasComment(node.argument)) {
         parts.push(
-          group(["(", indent([parenLine, print("argument")]), parenLine, ")"])
+          group(["(", indent([parenLine, print("argument")]), parenLine, ")"]),
         );
       } else {
         parts.push(print("argument"));

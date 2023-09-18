@@ -488,7 +488,11 @@ function needsParens(path, options) {
         case "CallExpression":
         case "OptionalCallExpression":
           // Await expression already got its parens in its own print code.
-          if (node.type === "AwaitExpression" && isCallExpression(parent) && !isIgnored(path)) {
+          if (
+            node.type === "AwaitExpression" &&
+            isCallExpression(parent) &&
+            !isIgnored(path)
+          ) {
             return false;
           }
           return key === "callee";

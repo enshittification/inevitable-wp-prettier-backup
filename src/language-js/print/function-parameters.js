@@ -55,18 +55,11 @@ function printFunctionParameters(
         ) === ")",
     });
 
-    if ( ! comments ) {
+    if (!comments) {
       return [typeParams, "()"];
     }
 
-    return [
-      typeParams,
-      "(",
-      parenSpace,
-      comments,
-      parenSpace,
-      ")",
-    ];
+    return [typeParams, "(", parenSpace, comments, parenSpace, ")"];
   }
 
   const { parent } = path;

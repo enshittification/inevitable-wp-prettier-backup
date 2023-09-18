@@ -122,7 +122,15 @@ function printCallArguments(path, options, print) {
       return [
         breakParent,
         conditionalGroup([
-          ["(", parenSpace, group(firstArg, { shouldBreak: true }), ", ", ...tailArgs, parenSpace, ")"],
+          [
+            "(",
+            parenSpace,
+            group(firstArg, { shouldBreak: true }),
+            ", ",
+            ...tailArgs,
+            parenSpace,
+            ")",
+          ],
           allArgsBrokenOut(),
         ]),
       ];
@@ -130,7 +138,15 @@ function printCallArguments(path, options, print) {
 
     return conditionalGroup([
       ["(", parenSpace, firstArg, ", ", ...tailArgs, parenSpace, ")"],
-      ["(", parenSpace, group(firstArg, { shouldBreak: true }), ", ", ...tailArgs, parenSpace, ")"],
+      [
+        "(",
+        parenSpace,
+        group(firstArg, { shouldBreak: true }),
+        ", ",
+        ...tailArgs,
+        parenSpace,
+        ")",
+      ],
       allArgsBrokenOut(),
     ]);
   }
@@ -159,15 +175,36 @@ function printCallArguments(path, options, print) {
       return [
         breakParent,
         conditionalGroup([
-          ["(", parenSpace, ...headArgs, group(lastArg, { shouldBreak: true }), lastArgAddedLine ? "" : parenSpace, ")"],
+          [
+            "(",
+            parenSpace,
+            ...headArgs,
+            group(lastArg, { shouldBreak: true }),
+            lastArgAddedLine ? "" : parenSpace,
+            ")",
+          ],
           allArgsBrokenOut(),
         ]),
       ];
     }
 
     return conditionalGroup([
-      ["(", parenSpace, ...headArgs, lastArg, lastArgAddedLine ? "" : parenSpace, ")"],
-      ["(", parenSpace, ...headArgs, group(lastArg, { shouldBreak: true }), lastArgAddedLine ? "" : parenSpace, ")"],
+      [
+        "(",
+        parenSpace,
+        ...headArgs,
+        lastArg,
+        lastArgAddedLine ? "" : parenSpace,
+        ")",
+      ],
+      [
+        "(",
+        parenSpace,
+        ...headArgs,
+        group(lastArg, { shouldBreak: true }),
+        lastArgAddedLine ? "" : parenSpace,
+        ")",
+      ],
       allArgsBrokenOut(),
     ]);
   }

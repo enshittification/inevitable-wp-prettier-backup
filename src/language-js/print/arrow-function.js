@@ -142,21 +142,24 @@ function printArrowFunction(path, options, print, args = {}) {
 
   const trailingLine = hasAddedLine(bodyDoc);
 
-  return group([
-    group(
-      shouldIndentSignatures
-        ? indent([softline, signaturesDoc])
-        : signaturesDoc,
-      { shouldBreak: shouldBreakSignatures, id: chainGroupId },
-    ),
-    " =>",
-    shouldPrintAsChain
-      ? indentIfBreak(bodyDoc, { groupId: chainGroupId })
-      : group(bodyDoc),
-    shouldPrintAsChain && isCallee
-      ? ifBreak(softline, "", { groupId: chainGroupId })
-      : "",
-  ], { trailingLine });
+  return group(
+    [
+      group(
+        shouldIndentSignatures
+          ? indent([softline, signaturesDoc])
+          : signaturesDoc,
+        { shouldBreak: shouldBreakSignatures, id: chainGroupId },
+      ),
+      " =>",
+      shouldPrintAsChain
+        ? indentIfBreak(bodyDoc, { groupId: chainGroupId })
+        : group(bodyDoc),
+      shouldPrintAsChain && isCallee
+        ? ifBreak(softline, "", { groupId: chainGroupId })
+        : "",
+    ],
+    { trailingLine },
+  );
 }
 
 function printArrowFunctionSignature(path, options, print, args) {
@@ -310,13 +313,16 @@ function printArrowFunctionBody(
   if (shouldPutBodyOnSameLine && shouldAddParensIfNotBreak(functionBody)) {
     return [
       " ",
-      group([
-        ifBreak("", ["(", parenSpace]),
-        indent([softline, bodyDoc]),
-        ifBreak("", [parenSpace,")"]),
-        trailingComma,
-        trailingSpace,
-      ], { trailingLine: trailingSpace !== "" }),
+      group(
+        [
+          ifBreak("", ["(", parenSpace]),
+          indent([softline, bodyDoc]),
+          ifBreak("", [parenSpace, ")"]),
+          trailingComma,
+          trailingSpace,
+        ],
+        { trailingLine: trailingSpace !== "" },
+      ),
       ...bodyComments,
     ];
   }

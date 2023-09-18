@@ -426,7 +426,7 @@ function findNonEmpty(doc, end) {
   if (end) {
     doc = Array.from(doc).reverse();
   }
-  return doc.find(d => d !== "");
+  return doc.find((d) => d !== "");
 }
 
 function hasAddedLine(doc, where = "end", level = 0) {

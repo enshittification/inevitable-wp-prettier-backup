@@ -15,7 +15,11 @@ import {
   join,
   cursor,
 } from "../../document/builders.js";
-import { hasAddedLine, willBreak, replaceEndOfLine } from "../../document/utils.js";
+import {
+  hasAddedLine,
+  willBreak,
+  replaceEndOfLine,
+} from "../../document/utils.js";
 import UnexpectedNodeError from "../../utils/unexpected-node-error.js";
 import getPreferredQuote from "../../utils/get-preferred-quote.js";
 import WhitespaceUtils from "../../utils/whitespace-utils.js";
@@ -525,9 +529,9 @@ function printJsxAttribute(path, options, print) {
 }
 
 function printJsxExpressionContainer(path, options, print) {
-const parenSpace = options.parenSpacing ? " " : "";
-const parenLine = options.parenSpacing ? line : softline;
-const { node } = path;
+  const parenSpace = options.parenSpacing ? " " : "";
+  const parenLine = options.parenSpacing ? line : softline;
+  const { node } = path;
 
   const shouldInline = (node, parent) =>
     node.type === "JSXEmptyExpression" ||
@@ -550,7 +554,14 @@ const { node } = path;
 
   if (shouldInline(node.expression, path.parent)) {
     const printed = print("expression");
-    return group(["{", parenSpace, printed, lineSuffixBoundary, hasAddedLine(printed) ? "" : parenSpace, "}"]);
+    return group([
+      "{",
+      parenSpace,
+      printed,
+      lineSuffixBoundary,
+      hasAddedLine(printed) ? "" : parenSpace,
+      "}",
+    ]);
   }
 
   return group([

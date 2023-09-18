@@ -232,7 +232,7 @@ function printTemplateExpression(path, print, options) {
 function printTemplateExpressions(path, print, options) {
   return path.map(
     (path) => printTemplateExpression(path, print, options),
-    "expressions"
+    "expressions",
   );
 }
 

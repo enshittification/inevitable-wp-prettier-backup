@@ -1,4 +1,10 @@
-import { line, softline, group, indent, label } from "../../document/builders.js";
+import {
+  line,
+  softline,
+  group,
+  indent,
+  label,
+} from "../../document/builders.js";
 import {
   isNumericLiteral,
   isMemberExpression,

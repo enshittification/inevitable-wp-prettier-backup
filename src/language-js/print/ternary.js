@@ -282,7 +282,7 @@ function printTernary(path, options, print) {
       "? ",
       consequentNode.type === node.type ? ifBreak("", ["(", parenSpace]) : "",
       align(2, print(consequentNodePropertyName)),
-      consequentNode.type === node.type ? ifBreak("", [parenSpace,")"]) : "",
+      consequentNode.type === node.type ? ifBreak("", [parenSpace, ")"]) : "",
       line,
       ": ",
       alternateNode.type === node.type
@@ -338,7 +338,8 @@ function printTernary(path, options, print) {
     !parent.computed;
 
   const shouldExtraIndent = shouldExtraIndentForConditionalExpression(path);
-  const trailingLine = isConditionalExpression && breakClosingParen && !shouldExtraIndent;
+  const trailingLine =
+    isConditionalExpression && breakClosingParen && !shouldExtraIndent;
 
   const result = maybeGroup(
     [
@@ -346,11 +347,14 @@ function printTernary(path, options, print) {
       forceNoIndent ? parts : indent(parts),
       trailingLine ? parenLine : "",
     ],
-    { trailingLine }
+    { trailingLine },
   );
 
   return isParentTest || shouldExtraIndent
-    ? group([indent([parenLine, result]), parenLine], { leadingLine: true, trailingLine: true })
+    ? group([indent([parenLine, result]), parenLine], {
+        leadingLine: true,
+        trailingLine: true,
+      })
     : result;
 }
 

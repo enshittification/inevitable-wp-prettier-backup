@@ -81,7 +81,7 @@ function expressionNeedsASIProtection(path, options) {
       }
       break;
     }
-  
+
     default:
       if (isJsxElement(node)) {
         return true;
