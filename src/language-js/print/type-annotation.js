@@ -240,7 +240,11 @@ function printUnionType(path, options, print) {
   }, "types");
 
   if (shouldHug) {
-    return join(" | ", printed);
+    const joined = join(" | ", printed);
+    if (!needsParens(path)) {
+      return joined;
+    }
+    return ["(", parenSpace, joined, parenSpace, ")"];
   }
 
   const shouldAddStartLine =
