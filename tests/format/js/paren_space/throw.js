@@ -3,5 +3,7 @@ function f() {
 }
 
 lint(ast, {
-  with: () => throw new Error("avoid using 'with' statements.")
-  });
+  with: () => {
+    throw new Error("avoid using 'with' statements.");
+  }
+});
